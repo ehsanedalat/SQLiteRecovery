@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AndroidPlugin", "AndroidPlugin\AndroidPlugin.csproj", "{62BCA479-A103-4F1B-87D5-FD59D540326A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevicePluginLibrary", "..\DevicePluginLibrary\DevicePluginLibrary\DevicePluginLibrary.csproj", "{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{62BCA479-A103-4F1B-87D5-FD59D540326A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62BCA479-A103-4F1B-87D5-FD59D540326A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62BCA479-A103-4F1B-87D5-FD59D540326A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
