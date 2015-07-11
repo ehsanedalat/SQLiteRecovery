@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SQLiteRecovery
+namespace DeviceRecoveryPluginInterface
 {
     /// <summary>
     ///     this is plugin interface. for each device we should create a class that inherited this interface.
