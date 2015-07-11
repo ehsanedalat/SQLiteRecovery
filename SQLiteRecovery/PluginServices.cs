@@ -9,6 +9,16 @@ namespace SQLiteRecovery
 {
     class PluginServices
     {
+        /// <summary>
+        ///     this class is used for loading plugins that is stored in ".dll" file format in special directory.
+        /// </summary>
+        /// <param name="path">
+        ///     path is a Address of saved plugins directory.(type: string)
+        /// </param>
+        /// <returns>
+        ///     list of all plugins that exists in path directory.(type: ICollection)
+        /// </returns>
+
         public static ICollection<DeviceRecoveryPlugin> LoadPlugins(string path)
         {
             string[] dllFileNames = null;

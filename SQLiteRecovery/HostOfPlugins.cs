@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace SQLiteRecovery
 {
-    static class Program
+    static class HostOfPlugins
     {
         /// <summary>
         /// The main entry point for the application.
@@ -15,7 +15,7 @@ namespace SQLiteRecovery
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new MainUI());
         }
     }
 }
