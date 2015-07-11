@@ -15,7 +15,7 @@ namespace DevicePluginInterface
     ///         setAppCheckBoxes()
     ///             this methode is used for producing checkboxes that should add to main tab of device.
     /// </summary>
-    interface DeviceRecoveryPluginInterface
+    public interface DeviceRecoveryPluginInterface
     {
         void root();
         void copyFilesFromDevice(string storingPathInComputer, Dictionary<string, string> appsPathInDevice);
