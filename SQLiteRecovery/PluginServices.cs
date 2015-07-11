@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using DevicePluginInterface;
 
 namespace SQLiteRecovery
 {
@@ -19,7 +20,7 @@ namespace SQLiteRecovery
         ///     list of all plugins that exists in path directory.(type: ICollection)
         /// </returns>
 
-        public static ICollection<DeviceRecoveryPlugin> LoadPlugins(string path)
+        public static ICollection<DeviceRecoveryPluginInterface> LoadPlugins(string path)
         {
             string[] dllFileNames = null;
 
@@ -35,7 +36,7 @@ namespace SQLiteRecovery
                     assemblies.Add(assembly);
                 }
 
-                Type pluginType = typeof(DeviceRecoveryPlugin);
+                Type pluginType = typeof(DeviceRecoveryPluginInterface);
                 ICollection<Type> pluginTypes = new List<Type>();
                 foreach (Assembly assembly in assemblies)
                 {
@@ -60,10 +61,10 @@ namespace SQLiteRecovery
                     }
                 }
 
-                ICollection<DeviceRecoveryPlugin> plugins = new List<DeviceRecoveryPlugin>(pluginTypes.Count);
+                ICollection<DeviceRecoveryPluginInterface> plugins = new List<DeviceRecoveryPluginInterface>(pluginTypes.Count);
                 foreach (Type type in pluginTypes)
                 {
-                    DeviceRecoveryPlugin plugin = (DeviceRecoveryPlugin)Activator.CreateInstance(type);
+                    DeviceRecoveryPluginInterface plugin = (DeviceRecoveryPluginInterface)Activator.CreateInstance(type);
                     plugins.Add(plugin);
                 }
 

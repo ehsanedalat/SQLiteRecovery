@@ -1,0 +1,10 @@
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\SQLiteRecovery.exe
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\SQLiteRecovery.pdb
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\DevicePluginLibrary.dll
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\DevicePluginLibrary.pdb
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csprojResolveAssemblyReference.cache
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.MainUI.resources
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.Properties.Resources.resources
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csproj.GenerateResource.Cache
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.exe
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.pdb
