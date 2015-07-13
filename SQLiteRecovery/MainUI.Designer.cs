@@ -31,7 +31,9 @@
             this.OSTabsControl = new System.Windows.Forms.TabControl();
             this.Android = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.OSTabsControl.SuspendLayout();
+            this.Android.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,6 +48,7 @@
             // 
             // Android
             // 
+            this.Android.Controls.Add(this.button1);
             this.Android.Location = new System.Drawing.Point(4, 22);
             this.Android.Name = "Android";
             this.Android.Padding = new System.Windows.Forms.Padding(3);
@@ -64,6 +67,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Suppoted Oprating Systems:";
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(201, 396);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(181, 29);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "Recover selected Apps data";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -73,6 +85,7 @@
             this.Name = "MainUI";
             this.Text = "Form1";
             this.OSTabsControl.ResumeLayout(false);
+            this.Android.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -83,6 +96,7 @@
         private System.Windows.Forms.TabControl OSTabsControl;
         private System.Windows.Forms.TabPage Android;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button button1;
 
     }
 }
