@@ -21,7 +21,7 @@ namespace DevicePluginInterface
     ///<description>this methode is used for copping sqlite DB files from device to computer.</description>
     ///</item>
     ///<item>
-    /// <term>setAppCheckBoxes()</term>
+    /// <term>setOsTabControls()</term>
     ///<description>this methode is used for producing tab page that should add to main tab of application.</description>
     ///</item>
     ///</list>
