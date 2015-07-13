@@ -5,3 +5,5 @@ F:\C# Projects\AndroidPlugin\AndroidPlugin\bin\Debug\DevicePluginLibrary.dll
 F:\C# Projects\AndroidPlugin\AndroidPlugin\bin\Debug\DevicePluginLibrary.pdb
 F:\C# Projects\AndroidPlugin\AndroidPlugin\obj\Debug\AndroidPlugin.dll
 F:\C# Projects\AndroidPlugin\AndroidPlugin\obj\Debug\AndroidPlugin.pdb
+F:\C# Projects\AndroidPlugin\AndroidPlugin\obj\Debug\AndroidPlugin.Properties.Resources.resources
+F:\C# Projects\AndroidPlugin\AndroidPlugin\obj\Debug\AndroidPlugin.csproj.GenerateResource.Cache
