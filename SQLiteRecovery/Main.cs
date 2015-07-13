@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
+
 namespace SQLiteRecovery
 {
-    static class HostOfPlugins
+    
+    static class Main
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        
+
         [STAThread]
         static void Main()
         {
