@@ -1,0 +1,6 @@
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.csproj.GenerateResource.Cache
+F:\C# Projects\PluginGenerator\PluginGenerator\bin\Debug\PluginGenerator.exe
+F:\C# Projects\PluginGenerator\PluginGenerator\bin\Debug\PluginGenerator.pdb
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.MainForm.resources
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.exe
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.pdb
