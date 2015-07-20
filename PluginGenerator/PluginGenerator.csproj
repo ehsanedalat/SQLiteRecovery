@@ -34,6 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Apps and pathes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Apps and pathes.Designer.cs">
+      <DependentUpon>Apps and pathes.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -41,10 +47,23 @@
     <Compile Include="MainForm.designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewApp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewApp.Designer.cs">
+      <DependentUpon>NewApp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Apps and pathes.resx">
+      <DependentUpon>Apps and pathes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewApp.resx">
+      <DependentUpon>NewApp.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
