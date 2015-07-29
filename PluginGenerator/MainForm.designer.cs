@@ -32,15 +32,15 @@
             this.edit_button = new System.Windows.Forms.Button();
             this.checkBoxPanel = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.osComboBox = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.pluginNameTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.browse_button = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.saveTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.solutionDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveDllFileDialog = new System.Windows.Forms.SaveFileDialog();
@@ -68,7 +68,7 @@
             this.edit_button.Name = "edit_button";
             this.edit_button.Size = new System.Drawing.Size(83, 23);
             this.edit_button.TabIndex = 8;
-            this.edit_button.Text = "Edit App path";
+            this.edit_button.Text = "Edit Apps";
             this.edit_button.UseVisualStyleBackColor = true;
             this.edit_button.Click += new System.EventHandler(this.edit_button_Click);
             // 
@@ -82,9 +82,9 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.comboBox1);
+            this.groupBox2.Controls.Add(this.osComboBox);
             this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.textBox1);
+            this.groupBox2.Controls.Add(this.pluginNameTextBox);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Location = new System.Drawing.Point(12, 12);
             this.groupBox2.Name = "groupBox2";
@@ -93,17 +93,17 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "General information";
             // 
-            // comboBox1
+            // osComboBox
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.osComboBox.FormattingEnabled = true;
+            this.osComboBox.Items.AddRange(new object[] {
             "Android",
             "iOS",
             "Windows"});
-            this.comboBox1.Location = new System.Drawing.Point(90, 55);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(178, 21);
-            this.comboBox1.TabIndex = 4;
+            this.osComboBox.Location = new System.Drawing.Point(90, 55);
+            this.osComboBox.Name = "osComboBox";
+            this.osComboBox.Size = new System.Drawing.Size(178, 21);
+            this.osComboBox.TabIndex = 4;
             // 
             // label2
             // 
@@ -114,12 +114,12 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Supported OS:";
             // 
-            // textBox1
+            // pluginNameTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(89, 23);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(179, 20);
-            this.textBox1.TabIndex = 2;
+            this.pluginNameTextBox.Location = new System.Drawing.Point(89, 23);
+            this.pluginNameTextBox.Name = "pluginNameTextBox";
+            this.pluginNameTextBox.Size = new System.Drawing.Size(179, 20);
+            this.pluginNameTextBox.TabIndex = 2;
             // 
             // label1
             // 
@@ -160,7 +160,7 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.textBox2);
+            this.groupBox4.Controls.Add(this.saveTextBox);
             this.groupBox4.Controls.Add(this.button2);
             this.groupBox4.Location = new System.Drawing.Point(12, 344);
             this.groupBox4.Name = "groupBox4";
@@ -169,12 +169,12 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Save dll file to";
             // 
-            // textBox2
+            // saveTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(10, 31);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(245, 20);
-            this.textBox2.TabIndex = 3;
+            this.saveTextBox.Location = new System.Drawing.Point(10, 31);
+            this.saveTextBox.Name = "saveTextBox";
+            this.saveTextBox.Size = new System.Drawing.Size(245, 20);
+            this.saveTextBox.TabIndex = 3;
             // 
             // button2
             // 
@@ -189,8 +189,15 @@
             // solutionDialog
             // 
             this.solutionDialog.DefaultExt = "dll";
-            this.solutionDialog.FileName = "plugin";
             this.solutionDialog.Filter = "Assembly files|*.dll";
+            this.solutionDialog.InitialDirectory = "F:\\C# Projects\\AndroidPlugin\\AndroidPlugin\\bin\\Debug\\";
+            this.solutionDialog.Title = "Dll file path ...";
+            // 
+            // saveDllFileDialog
+            // 
+            this.saveDllFileDialog.DefaultExt = "dll";
+            this.saveDllFileDialog.InitialDirectory = "F:\\C# Projects\\SQLiteRecovery\\SQLiteRecovery\\Plugins\\";
+            this.saveDllFileDialog.Title = "Save to ...";
             // 
             // build_button
             // 
@@ -200,6 +207,7 @@
             this.build_button.TabIndex = 4;
             this.build_button.Text = "Build plugin";
             this.build_button.UseVisualStyleBackColor = true;
+            this.build_button.Click += new System.EventHandler(this.build_button_Click);
             // 
             // MainForm
             // 
@@ -229,16 +237,16 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Panel checkBoxPanel;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox pluginNameTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox osComboBox;
         private System.Windows.Forms.Button edit_button;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox addressTextBox;
         private System.Windows.Forms.Button browse_button;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox saveTextBox;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.OpenFileDialog solutionDialog;
         private System.Windows.Forms.SaveFileDialog saveDllFileDialog;

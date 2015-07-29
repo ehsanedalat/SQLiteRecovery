@@ -12,6 +12,7 @@ namespace PluginGenerator
     public partial class Apps_and_pathes : Form
     {
         private MainForm main;
+        private int MaxLength=7;
         public Dictionary<string, string> apps { get; set; }
 
         public Apps_and_pathes(Dictionary<string,string> apps, MainForm main)
@@ -47,11 +48,18 @@ namespace PluginGenerator
             // 
             // label1
             // 
-            label1.AutoSize = true;
+            //label1.AutoSize = true;
             label1.Location = new System.Drawing.Point(3, 13);
             label1.Name = "label1";
-            label1.Text = name;
-            label1.Size = new System.Drawing.Size(40, 13);
+            string textInLabel=name;
+            if (name.Length > MaxLength)
+            {
+                textInLabel = name.Substring(0, MaxLength);
+                textInLabel = textInLabel + "..";
+                Utils.ToolTip(name, label1);
+            }
+            label1.Text = textInLabel;
+            label1.Size = new System.Drawing.Size(60, 13);
             label1.TabIndex = 0;
             // 
             // textBox1
@@ -86,17 +94,30 @@ namespace PluginGenerator
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string[] textBoxNamesArray = this.flowLayoutPanel1.Controls.OfType<TextBox>()
-                                          .Select(r => r.Name)
-                                          .ToArray();
-            foreach (string name in textBoxNamesArray)
+            Panel[] panelsArray = this.flowLayoutPanel1.Controls.OfType<Panel>().ToArray();
+            List<TextBox> textBoxes = new List<TextBox>();
+            foreach (Panel p in panelsArray)
             {
-                string value = (this.flowLayoutPanel1.Controls[name] as TextBox).Text;
-                apps[name] = value;
+                textBoxes.Add(p.Controls.OfType<TextBox>().ToArray()[0]);
             }
-            this.Hide();
-            main.updateAppsCheckBoxes();
-            main.Show();
+            ErrorProvider error = new ErrorProvider();
+            bool isErrorExist = false;
+            foreach (TextBox box in textBoxes)
+            {
+                string value = box.Text;
+                apps[box.Name] = value;
+                if (string.IsNullOrEmpty(value))
+                {
+                    error.SetError(box,"Empty Box !!");
+                    isErrorExist = true;
+                }
+            }
+            if (!isErrorExist)
+            {
+                this.Hide();
+                main.updateAppsCheckBoxes();
+                main.Show();
+            }
             
         }
 
@@ -119,7 +140,7 @@ namespace PluginGenerator
         private void mainFrame_onClose(object sender, FormClosedEventArgs e)
         {
             this.Hide();
-            main.updateAppsCheckBoxes();
+            //main.updateAppsCheckBoxes();
             main.Show();
         }
     }
