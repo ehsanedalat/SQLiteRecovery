@@ -39,16 +39,11 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.browse_button = new System.Windows.Forms.Button();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.saveTextBox = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.solutionDialog = new System.Windows.Forms.OpenFileDialog();
-            this.saveDllFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.build_button = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -158,34 +153,6 @@
             this.browse_button.UseVisualStyleBackColor = true;
             this.browse_button.Click += new System.EventHandler(this.browse_button_Click);
             // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.saveTextBox);
-            this.groupBox4.Controls.Add(this.button2);
-            this.groupBox4.Location = new System.Drawing.Point(12, 344);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(550, 69);
-            this.groupBox4.TabIndex = 3;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Save dll file to";
-            // 
-            // saveTextBox
-            // 
-            this.saveTextBox.Location = new System.Drawing.Point(10, 31);
-            this.saveTextBox.Name = "saveTextBox";
-            this.saveTextBox.Size = new System.Drawing.Size(245, 20);
-            this.saveTextBox.TabIndex = 3;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(261, 28);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Browse";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // solutionDialog
             // 
             this.solutionDialog.DefaultExt = "dll";
@@ -193,15 +160,9 @@
             this.solutionDialog.InitialDirectory = "F:\\C# Projects\\AndroidPlugin\\AndroidPlugin\\bin\\Debug\\";
             this.solutionDialog.Title = "Dll file path ...";
             // 
-            // saveDllFileDialog
-            // 
-            this.saveDllFileDialog.DefaultExt = "dll";
-            this.saveDllFileDialog.InitialDirectory = "F:\\C# Projects\\SQLiteRecovery\\SQLiteRecovery\\Plugins\\";
-            this.saveDllFileDialog.Title = "Save to ...";
-            // 
             // build_button
             // 
-            this.build_button.Location = new System.Drawing.Point(202, 432);
+            this.build_button.Location = new System.Drawing.Point(205, 361);
             this.build_button.Name = "build_button";
             this.build_button.Size = new System.Drawing.Size(159, 23);
             this.build_button.TabIndex = 4;
@@ -213,9 +174,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(576, 476);
+            this.ClientSize = new System.Drawing.Size(576, 395);
             this.Controls.Add(this.build_button);
-            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -226,8 +186,6 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -245,11 +203,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox addressTextBox;
         private System.Windows.Forms.Button browse_button;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.TextBox saveTextBox;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.OpenFileDialog solutionDialog;
-        private System.Windows.Forms.SaveFileDialog saveDllFileDialog;
         private System.Windows.Forms.Button build_button;
     }
 }

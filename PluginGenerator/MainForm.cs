@@ -18,7 +18,6 @@ namespace PluginGenerator
         private string dllFileName;
         public Dictionary<string, string> apps { get; set; }
         private ErrorProvider error;
-        private Assembly importedDllfile;
 
         public MainForm()
         {
@@ -79,21 +78,9 @@ namespace PluginGenerator
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(pluginNameTextBox.Text) && !string.IsNullOrEmpty(osComboBox.Text))
-            {
-                saveDllFileDialog.FileName = pluginNameTextBox.Text + "_" + osComboBox.SelectedItem;
-                if (saveDllFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    saveTextBox.Text = saveDllFileDialog.FileName;
-                }
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(pluginNameTextBox.Text))
-                    error.SetError(pluginNameTextBox, "Empty Box !!!");
-                if(string.IsNullOrEmpty(osComboBox.Text))
-                    error.SetError(osComboBox,"Empty Box !!!");
-            }
+            
+                
+            
             
 
         }
@@ -104,14 +91,16 @@ namespace PluginGenerator
 
         private void build_button_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(saveTextBox.Text) && !string.IsNullOrEmpty(addressTextBox.Text) && !noAppChecked())
+            if (!string.IsNullOrEmpty(osComboBox.Text)&&!string.IsNullOrEmpty(pluginNameTextBox.Text)&&!string.IsNullOrEmpty(addressTextBox.Text) && !noAppChecked())
             {
                 //loadDllFile();
             }
             else
             {
-                if (string.IsNullOrEmpty(saveTextBox.Text))
-                    error.SetError(saveTextBox, "Empty Box !!!");
+                if (string.IsNullOrEmpty(pluginNameTextBox.Text))
+                    error.SetError(pluginNameTextBox, "Empty Box !!!");
+                if (string.IsNullOrEmpty(osComboBox.Text))
+                    error.SetError(osComboBox, "Empty Box !!!");
                 if (string.IsNullOrEmpty(addressTextBox.Text))
                     error.SetError(addressTextBox, "Empty Box!!!");
                 if (noAppChecked())
