@@ -29,11 +29,9 @@
         private void InitializeComponent()
         {
             this.OSTabsControl = new System.Windows.Forms.TabControl();
-            this.Android = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.generatePluginButton = new System.Windows.Forms.Button();
-            this.OSTabsControl.SuspendLayout();
+            this.deleteButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -41,32 +39,11 @@
             // 
             this.OSTabsControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.OSTabsControl.Controls.Add(this.Android);
             this.OSTabsControl.Location = new System.Drawing.Point(6, 19);
             this.OSTabsControl.Name = "OSTabsControl";
             this.OSTabsControl.SelectedIndex = 0;
             this.OSTabsControl.Size = new System.Drawing.Size(591, 439);
             this.OSTabsControl.TabIndex = 0;
-            // 
-            // Android
-            // 
-            this.Android.Location = new System.Drawing.Point(4, 22);
-            this.Android.Name = "Android";
-            this.Android.Padding = new System.Windows.Forms.Padding(3);
-            this.Android.Size = new System.Drawing.Size(583, 413);
-            this.Android.TabIndex = 0;
-            this.Android.Text = "Android";
-            this.Android.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.button1.Location = new System.Drawing.Point(366, 482);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(181, 29);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Recover selected Apps data";
-            this.button1.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -89,17 +66,26 @@
             this.generatePluginButton.UseVisualStyleBackColor = true;
             this.generatePluginButton.Click += new System.EventHandler(this.generatePluginButton_Click);
             // 
+            // deleteButton
+            // 
+            this.deleteButton.Location = new System.Drawing.Point(353, 487);
+            this.deleteButton.Name = "deleteButton";
+            this.deleteButton.Size = new System.Drawing.Size(197, 23);
+            this.deleteButton.TabIndex = 4;
+            this.deleteButton.Text = "Delete Current Plugin";
+            this.deleteButton.UseVisualStyleBackColor = true;
+            this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
+            // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(627, 524);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.deleteButton);
             this.Controls.Add(this.generatePluginButton);
             this.Controls.Add(this.groupBox1);
             this.Name = "MainUI";
             this.Text = "Form1";
-            this.OSTabsControl.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -108,10 +94,9 @@
         #endregion
 
         private System.Windows.Forms.TabControl OSTabsControl;
-        private System.Windows.Forms.TabPage Android;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button generatePluginButton;
+        private System.Windows.Forms.Button deleteButton;
 
     }
 }

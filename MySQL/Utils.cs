@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MySql.Data.MySqlClient;
 using System.Collections;
+using System.Data;
 
 namespace MySQLLibrary
 {
@@ -125,26 +126,37 @@ namespace MySQLLibrary
         }
 
         //Select statement
-        public Dictionary<string,string> Select(string tableName, bool allColumns, string[] tableColumns, string whereClause)
+        public Dictionary<int, Dictionary<string, string>> Select(string tableName, bool allColumns, string[] tableColumns, string whereClause)
         {
             string query="";
             if (String.IsNullOrEmpty(whereClause))
                 whereClause = "";
-            if (String.IsNullOrEmpty(tableName) || tableColumns == null || tableColumns.Length == 0)
-                throw new MySQLException("Invalid method parameters! tableName:{0} | tableColumn:{1} size is 0 ",new Object[]{tableName,tableColumns});
+            if (String.IsNullOrEmpty(tableName) || !allColumns && (tableColumns == null || tableColumns.Length == 0))
+                throw new MySQLException("Invalid method parameters! tableName:{0} | tableColumn:{1} size is 0 ", new Object[] { tableName, tableColumns });
             if (allColumns)
-                query = "SELECT * FROM " + tableName + " where " + whereClause;
+                if (whereClause != "")
+                    query = "SELECT * FROM " + tableName + " where " + whereClause;
+                else
+                    query = "SELECT * FROM " + tableName;
             else
             {
                 query = "SELECT ";
                 foreach (string col in tableColumns)
                     query = query + col + ",";
-                query=query.Substring(0, query.Length - 1) + " From "+tableName+" where "+whereClause;
+                if (whereClause != "")
+                    query = query.Substring(0, query.Length - 1) + " From " + tableName + " where " + whereClause;
+                else
+                    query = query.Substring(0, query.Length - 1) + " From " + tableName;
 
             }
-
+            if (tableColumns != null)
+                for (int i = 0; i < tableColumns.Length; i++)
+                {
+                    if (tableColumns[i].Contains("."))
+                        tableColumns[i] = tableColumns[i].Split(new char[] { '.' })[1];
+                }
             //Create a list to store the result
-            Dictionary<string, string> list = new Dictionary<string, string>();
+            Dictionary<int, Dictionary<string, string>> list = new Dictionary<int, Dictionary<string, string>>();
             
             //Open connection
             if (this.OpenConnection() == true)
@@ -153,15 +165,25 @@ namespace MySQLLibrary
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 //Create a data reader and Execute the command
                 MySqlDataReader dataReader = cmd.ExecuteReader();
+                if (allColumns)
+                {
+                    ArrayList cols = new ArrayList();
+                    foreach (DataRow col in dataReader.GetSchemaTable().Rows)
+                    {
+                        cols.Add(col.Field<String>("ColumnName"));
+                    }
+                    tableColumns=(string[])cols.ToArray(typeof(string));
+                }
 
                 //Read the data and store them in the list
-                while (dataReader.Read())
+                for (int i=0;dataReader.Read();i++)
                 {
+                    Dictionary<string, string> item = new Dictionary<string, string>();
                     foreach (string col in tableColumns)
                     {
-                        list.Add(col,dataReader[col] + "");
+                        item.Add(col,dataReader[col] + "");
                     }
-                    
+                    list.Add(i, item);
                 }
 
                 //close Data Reader

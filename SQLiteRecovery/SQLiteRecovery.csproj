@@ -49,9 +49,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MySql.Data, Version=6.9.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -64,11 +61,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apps and pathes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Apps and pathes.designer.cs">
+      <DependentUpon>Apps and pathes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainUI.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainUI.Designer.cs">
       <DependentUpon>MainUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewApp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewApp.designer.cs">
+      <DependentUpon>NewApp.cs</DependentUpon>
     </Compile>
     <Compile Include="PluginServices.cs" />
     <Compile Include="Main.cs" />
@@ -79,8 +94,18 @@
     <Compile Include="SqliteRecoveryPage.Designer.cs">
       <DependentUpon>SqliteRecoveryPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Utils.cs" />
+    <EmbeddedResource Include="Apps and pathes.resx">
+      <DependentUpon>Apps and pathes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainUI.resx">
       <DependentUpon>MainUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewApp.resx">
+      <DependentUpon>NewApp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -109,9 +134,9 @@
       <Project>{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}</Project>
       <Name>DevicePluginLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\PluginGenerator\PluginGenerator\PluginGenerator.csproj">
-      <Project>{3DD0A17F-5AE6-4BE6-986C-1B6E8BDC8C37}</Project>
-      <Name>PluginGenerator</Name>
+    <ProjectReference Include="..\MySQL\MySQL.csproj">
+      <Project>{85300A61-D2A4-4693-B738-AA4051341248}</Project>
+      <Name>MySQL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
