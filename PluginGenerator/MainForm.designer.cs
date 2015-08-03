@@ -1,6 +1,6 @@
 ﻿namespace PluginGenerator
 {
-    partial class MainForm
+    partial class MainFormPluginGenerator
     {
         /// <summary>
         /// Required designer variable.

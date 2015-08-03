@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace PluginGenerator
 {
-    public partial class MainForm : Form
+    public partial class MainFormPluginGenerator : Form
     {
         private static string PATH = "Path: ";
         private static int HEIGHT=20;
@@ -18,11 +18,13 @@ namespace PluginGenerator
         private string dllFileName;
         public Dictionary<string, string> apps { get; set; }
         private ErrorProvider error;
+        private Form parent;
 
-        public MainForm()
+        public MainFormPluginGenerator(Form parent)
         {
             InitializeComponent();
             FormClosed += new FormClosedEventHandler(mainFrame_onClose);
+            this.parent = parent;
             error = new ErrorProvider();
             apps = new Dictionary<string, string>();
             apps.Add("SMS", "");
@@ -94,6 +96,8 @@ namespace PluginGenerator
             if (!string.IsNullOrEmpty(osComboBox.Text)&&!string.IsNullOrEmpty(pluginNameTextBox.Text)&&!string.IsNullOrEmpty(addressTextBox.Text) && !noAppChecked())
             {
                 //loadDllFile();
+                parent.Show();
+                this.Hide();
             }
             else
             {

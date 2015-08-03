@@ -1,9 +1,9 @@
 F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.csproj.GenerateResource.Cache
 F:\C# Projects\PluginGenerator\PluginGenerator\bin\Debug\PluginGenerator.pdb
-F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.MainForm.resources
 F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.pdb
 F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.Apps_and_pathes.resources
 F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.NewApp.resources
 F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.csprojResolveAssemblyReference.cache
-F:\C# Projects\PluginGenerator\PluginGenerator\bin\Debug\PluginGenerator.dll
-F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.dll
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.MainFormPluginGenerator.resources
+F:\C# Projects\PluginGenerator\PluginGenerator\bin\Debug\PluginGenerator.exe
+F:\C# Projects\PluginGenerator\PluginGenerator\obj\x86\Debug\PluginGenerator.exe

@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3DD0A17F-5AE6-4BE6-986C-1B6E8BDC8C37}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PluginGenerator</RootNamespace>
     <AssemblyName>PluginGenerator</AssemblyName>
@@ -43,13 +43,13 @@
     <Compile Include="Apps and pathes.Designer.cs">
       <DependentUpon>Apps and pathes.cs</DependentUpon>
     </Compile>
-    <Compile Include="Main.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainFormPG.cs" />
     <Compile Include="NewApp.cs">
       <SubType>Form</SubType>
     </Compile>

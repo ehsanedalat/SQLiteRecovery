@@ -11,11 +11,11 @@ namespace PluginGenerator
 {
     public partial class Apps_and_pathes : Form
     {
-        private MainForm main;
+        private MainFormPluginGenerator main;
         private int MaxLength=7;
         public Dictionary<string, string> apps { get; set; }
 
-        public Apps_and_pathes(Dictionary<string,string> apps, MainForm main)
+        public Apps_and_pathes(Dictionary<string,string> apps, MainFormPluginGenerator main)
         {
             this.main = main;
             this.apps = apps;
