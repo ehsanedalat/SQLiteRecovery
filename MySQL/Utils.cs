@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace MySQLLibrary
 {
-    public class Utils 
+    public class SQLUtils 
     {
         private MySqlConnection connection;
         private string server;
@@ -16,7 +16,7 @@ namespace MySQLLibrary
         private string password;
 
         //Constructor
-        public Utils(string dbName)
+        public SQLUtils(string dbName)
         {
             Initialize(dbName);
         }
