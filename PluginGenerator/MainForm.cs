@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
+using MySQLLibrary;
 
 namespace PluginGenerator
 {
@@ -95,7 +96,7 @@ namespace PluginGenerator
         {
             if (!string.IsNullOrEmpty(osComboBox.Text)&&!string.IsNullOrEmpty(pluginNameTextBox.Text)&&!string.IsNullOrEmpty(addressTextBox.Text) && !noAppChecked())
             {
-                //loadDllFile();
+                addRecordToDB();
                 parent.Show();
                 this.Hide();
             }
@@ -110,6 +111,15 @@ namespace PluginGenerator
                 if (noAppChecked())
                     error.SetError(checkBoxPanel,"None of items are checked!!!");
             }
+        }
+
+        private void addRecordToDB()
+        {
+            SQLUtils utils = new SQLUtils("sqlite_recovery_plugins");
+            utils.Insert("insert into plugins (name,os,dll_address) values ("+pluginNameTextBox.Text+","+osComboBox.SelectedItem+","+dllFileName+");");
+            string id=utils.Select("plugins", false, new string[] { "id" }, "name=" + pluginNameTextBox.Text + " and os=" + osComboBox.SelectedItem + "and dll_address=" + dllFileName)["id"];
+            foreach (KeyValuePair<string,string> app in apps)
+                utils.Insert("insert into apps (name,path,plugin)values("+app.Key+","+app.Value+","+id+");");
         }
         /*
         private void loadDllFile()
