@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using DevicePluginInterface;
 using System.Diagnostics;
+using PluginGenerator;
 
 namespace SQLiteRecovery
 {
@@ -24,7 +25,7 @@ namespace SQLiteRecovery
             
             plugins = PluginServices.LoadPlugins("Plugins");
             
-            buildPluginUI();
+            //buildPluginUI();
         }
         /// <summary>
         /// Add each plugin to main UI.
@@ -59,6 +60,13 @@ namespace SQLiteRecovery
             var checkedBoxes = tabPage.Controls.OfType<CheckBox>().Where(c => c.Checked).ToList<CheckBox>();
             SqliteRecoveryPage page = new SqliteRecoveryPage(checkedBoxes, this);
             page.Show();
+            this.Hide();
+        }
+
+        private void generatePluginButton_Click(object sender, EventArgs e)
+        {
+            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this);
+            generatePluginUI.Show();
             this.Hide();
         }
 

@@ -9,3 +9,5 @@ F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csproj
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.exe
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.pdb
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.SqliteRecoveryPage.resources
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\PluginGenerator.pdb
+F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\PluginGenerator.exe
