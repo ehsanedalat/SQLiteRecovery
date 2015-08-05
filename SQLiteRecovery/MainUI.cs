@@ -46,7 +46,7 @@ namespace SQLiteRecovery
             for (int i = 0; pluginsData.ContainsKey(i);i++ )
             {
                Dictionary<int,Dictionary<string, string>> appsData=
-                   utils.Select("plugins join apps", false, new string[] { "apps.name", "apps.path" }, "plugins.Id=" + pluginsData[i]["Id"] + " and plugins.id=apps.plugin");
+                   utils.Select("plugins join apps", false, new string[] { "apps.name", "apps.path" }, "plugins.name='" + pluginsData[i]["name"] + "' and plugins.name=apps.plugin_name");
                buildPluginUI(pluginsData[i]["name"], pluginsData[i]["os"], pluginsData[i]["dll_address"], appsData);
                tabs.Add(pluginsData[i]["name"], pluginsData[i]);
             }
@@ -207,7 +207,7 @@ namespace SQLiteRecovery
             {
                 if (!tabs.ContainsKey(key))
                     buildPluginUI(newTabsData[key]["name"], newTabsData[key]["os"], newTabsData[key]["dll_address"],
-                   utils.Select("plugins join apps", false, new string[] { "apps.name", "apps.path" }, "plugins.Id=" + newTabsData[key]["Id"] + " and plugins.id=apps.plugin"));
+                   utils.Select("plugins join apps", false, new string[] { "apps.name", "apps.path" }, "plugins.name='" + newTabsData[key]["name"] + "' and plugins.name=apps.plugin_name"));
                 else
                     tabs.Remove(key);
             }
@@ -222,10 +222,26 @@ namespace SQLiteRecovery
             
         }
 
+        public void updateTabData(string name)
+        {
+            tabs.Remove(name);
+            updateTabs();
+        }
+
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            utils.Delete("delete from plugins where name='" + OSTabsControl.SelectedTab.Name+"'");
-            updateTabs();
+            if (OSTabsControl.TabCount > 0)
+            {
+                utils.Delete("delete from plugins where name='" + OSTabsControl.SelectedTab.Name + "'");
+                updateTabs();
+            }
+        }
+
+        private void editButton_Click(object sender, EventArgs e)
+        {
+            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this);
+            generatePluginUI.Show();
+            this.Hide();
         }
        
     }

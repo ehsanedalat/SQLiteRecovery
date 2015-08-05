@@ -32,6 +32,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.generatePluginButton = new System.Windows.Forms.Button();
             this.deleteButton = new System.Windows.Forms.Button();
+            this.editButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -58,29 +59,40 @@
             // generatePluginButton
             // 
             this.generatePluginButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.generatePluginButton.Location = new System.Drawing.Point(69, 485);
+            this.generatePluginButton.Location = new System.Drawing.Point(18, 485);
             this.generatePluginButton.Name = "generatePluginButton";
-            this.generatePluginButton.Size = new System.Drawing.Size(166, 27);
+            this.generatePluginButton.Size = new System.Drawing.Size(178, 27);
             this.generatePluginButton.TabIndex = 3;
-            this.generatePluginButton.Text = "Generate New Plugin";
+            this.generatePluginButton.Text = "New Plugin";
             this.generatePluginButton.UseVisualStyleBackColor = true;
             this.generatePluginButton.Click += new System.EventHandler(this.generatePluginButton_Click);
             // 
             // deleteButton
             // 
-            this.deleteButton.Location = new System.Drawing.Point(353, 487);
+            this.deleteButton.Location = new System.Drawing.Point(402, 487);
             this.deleteButton.Name = "deleteButton";
-            this.deleteButton.Size = new System.Drawing.Size(197, 23);
+            this.deleteButton.Size = new System.Drawing.Size(207, 23);
             this.deleteButton.TabIndex = 4;
             this.deleteButton.Text = "Delete Current Plugin";
             this.deleteButton.UseVisualStyleBackColor = true;
             this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
+            // 
+            // editButton
+            // 
+            this.editButton.Location = new System.Drawing.Point(202, 487);
+            this.editButton.Name = "editButton";
+            this.editButton.Size = new System.Drawing.Size(194, 23);
+            this.editButton.TabIndex = 5;
+            this.editButton.Text = "Edit Plugin";
+            this.editButton.UseVisualStyleBackColor = true;
+            this.editButton.Click += new System.EventHandler(this.editButton_Click);
             // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(627, 524);
+            this.Controls.Add(this.editButton);
             this.Controls.Add(this.deleteButton);
             this.Controls.Add(this.generatePluginButton);
             this.Controls.Add(this.groupBox1);
@@ -97,6 +109,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button generatePluginButton;
         private System.Windows.Forms.Button deleteButton;
+        private System.Windows.Forms.Button editButton;
 
     }
 }

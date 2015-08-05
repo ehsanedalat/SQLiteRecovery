@@ -91,10 +91,12 @@ namespace PluginGenerator
         {
             if (!string.IsNullOrEmpty(osComboBox.Text)&&!string.IsNullOrEmpty(pluginNameTextBox.Text)&&!string.IsNullOrEmpty(addressTextBox.Text) && !noAppChecked())
             {
-                addRecordToDB();
-                parent.Show();
-                parent.updateTabs();
-                this.Hide();
+                if (addRecordToDB())
+                {
+                    parent.Show();
+                    parent.updateTabs();
+                    this.Hide();
+                }
             }
             else
             {
@@ -109,22 +111,34 @@ namespace PluginGenerator
             }
         }
 
-        private void addRecordToDB()
+        private bool addRecordToDB()
         {
-            try
+            /*try
             {
                 SQLUtils utils = new SQLUtils("sqlite_recovery_plugins");
-                utils.Insert("insert into plugins (name,os,dll_address) values ('" + pluginNameTextBox.Text + "','" + osComboBox.SelectedItem + "','" + dllFileName + "');");
-                string id = utils.Select("plugins", false, new string[] { "id" }, "name='" + pluginNameTextBox.Text + "' and os='" + osComboBox.SelectedItem + "' and dll_address='" + dllFileName + "'")[0]["id"];
-                CheckBox[] appsBox = this.checkBoxPanel.Controls.OfType<CheckBox>().ToArray();
-                foreach (CheckBox box in appsBox)
-                    if(box.Checked)
-                        utils.Insert("insert into apps (name,path,plugin)values('" + box.Text + "','" + apps[box.Text] + "','" + id + "');");
+                Dictionary<int,Dictionary<string,string>> result=utils.Select("plugins", false, new string[] { "name" }, "plugins.name='" + pluginNameTextBox.Text + "'");
+                if (!result.ContainsKey(0) || !result[0].ContainsValue(pluginNameTextBox.Text))
+                {
+                    utils.Insert("insert into plugins (name,os,dll_address) values ('" + pluginNameTextBox.Text + "','" + osComboBox.SelectedItem + "','" + dllFileName + "');");
+                    string name = utils.Select("plugins", false, new string[] { "name" }, "name='" + pluginNameTextBox.Text + "' and os='" + osComboBox.SelectedItem + "' and dll_address='" + dllFileName + "'")[0]["name"];
+                    CheckBox[] appsBox = this.checkBoxPanel.Controls.OfType<CheckBox>().ToArray();
+                    foreach (CheckBox box in appsBox)
+                        if (box.Checked)
+                            utils.Insert("insert into apps (name,path,plugin_name)values('" + box.Text + "','" + apps[box.Text] + "','" + name + "');");
+                    return true;
+                }
+                else
+                {
+                    error.SetError(pluginNameTextBox, "This name current exist!");
+                    return false;
+                }
             }
             catch (MySQLException e)
             {
                 Debug.Fail(e.getMessage());
-            }
+                return false;
+            }*/
+            
         }
         /*
         private void loadDllFile()
