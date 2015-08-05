@@ -29,10 +29,7 @@ namespace DevicePluginInterface
     public interface DeviceRecoveryPluginInterface
     {
         string pluginName { get; set; }
-        string recoverButtonName { get; set; }
-        TabPage osTabPage { get; set;}
         void root();
-        void copyFilesFromDevice(string storingPathInComputer, Dictionary<string, string> appsPathInDevice);
-        void setOsTabControls();
+       
     }
 }
