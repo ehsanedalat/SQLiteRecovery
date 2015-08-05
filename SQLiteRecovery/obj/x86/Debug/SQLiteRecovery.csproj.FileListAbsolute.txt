@@ -17,3 +17,4 @@ F:\C# Projects\SQLiteRecovery\SQLiteRecovery\obj\x86\Debug\PluginGenerator.NewAp
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\Database.mdf
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\Database_log.ldf
 F:\C# Projects\SQLiteRecovery\SQLiteRecovery\bin\Debug\SQLiteRecovery.exe.config
+F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\SQLiteRecovery.exe.config
