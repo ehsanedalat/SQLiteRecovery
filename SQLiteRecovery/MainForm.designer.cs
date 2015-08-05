@@ -41,6 +41,7 @@
             this.browse_button = new System.Windows.Forms.Button();
             this.solutionDialog = new System.Windows.Forms.OpenFileDialog();
             this.build_button = new System.Windows.Forms.Button();
+            this.cancelButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -55,7 +56,7 @@
             this.groupBox1.Size = new System.Drawing.Size(551, 167);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Specify your desigerd Apps";
+            this.groupBox1.Text = "Specify your desierd Apps";
             // 
             // edit_button
             // 
@@ -162,7 +163,7 @@
             // 
             // build_button
             // 
-            this.build_button.Location = new System.Drawing.Point(205, 361);
+            this.build_button.Location = new System.Drawing.Point(355, 360);
             this.build_button.Name = "build_button";
             this.build_button.Size = new System.Drawing.Size(159, 23);
             this.build_button.TabIndex = 4;
@@ -170,17 +171,31 @@
             this.build_button.UseVisualStyleBackColor = true;
             this.build_button.Click += new System.EventHandler(this.build_button_Click);
             // 
-            // MainForm
+            // cancelButton
+            // 
+            this.cancelButton.Location = new System.Drawing.Point(42, 360);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(153, 23);
+            this.cancelButton.TabIndex = 5;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+            // 
+            // MainFormPluginGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(576, 395);
+            this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.build_button);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Name = "MainForm";
-            this.Text = "MainForm";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.Name = "MainFormPluginGenerator";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "New Plugin";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -205,5 +220,6 @@
         private System.Windows.Forms.Button browse_button;
         private System.Windows.Forms.OpenFileDialog solutionDialog;
         private System.Windows.Forms.Button build_button;
+        private System.Windows.Forms.Button cancelButton;
     }
 }

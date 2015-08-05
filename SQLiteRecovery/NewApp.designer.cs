@@ -112,7 +112,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(312, 161);
             this.Controls.Add(this.NewAppDialog);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "NewApp";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "NewApp";
             this.NewAppDialog.ResumeLayout(false);
             this.NewAppDialog.PerformLayout();

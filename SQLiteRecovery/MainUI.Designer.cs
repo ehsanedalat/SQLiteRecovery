@@ -33,6 +33,9 @@
             this.generatePluginButton = new System.Windows.Forms.Button();
             this.deleteButton = new System.Windows.Forms.Button();
             this.editButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.rootLabel = new System.Windows.Forms.Label();
+            this.rootButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,7 +57,7 @@
             this.groupBox1.Size = new System.Drawing.Size(603, 464);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Suppoted Oprating Systems:";
+            this.groupBox1.Text = "Plugins";
             // 
             // generatePluginButton
             // 
@@ -87,6 +90,27 @@
             this.editButton.UseVisualStyleBackColor = true;
             this.editButton.Click += new System.EventHandler(this.editButton_Click);
             // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.TabIndex = 0;
+            // 
+            // rootLabel
+            // 
+            this.rootLabel.Location = new System.Drawing.Point(0, 0);
+            this.rootLabel.Name = "rootLabel";
+            this.rootLabel.Size = new System.Drawing.Size(100, 23);
+            this.rootLabel.TabIndex = 0;
+            // 
+            // rootButton
+            // 
+            this.rootButton.Location = new System.Drawing.Point(0, 0);
+            this.rootButton.Name = "rootButton";
+            this.rootButton.Size = new System.Drawing.Size(75, 23);
+            this.rootButton.TabIndex = 0;
+            // 
             // MainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -96,8 +120,11 @@
             this.Controls.Add(this.deleteButton);
             this.Controls.Add(this.generatePluginButton);
             this.Controls.Add(this.groupBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "MainUI";
-            this.Text = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "SQLite Recovery";
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -110,6 +137,9 @@
         private System.Windows.Forms.Button generatePluginButton;
         private System.Windows.Forms.Button deleteButton;
         private System.Windows.Forms.Button editButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label rootLabel;
+        private System.Windows.Forms.Button rootButton;
 
     }
 }

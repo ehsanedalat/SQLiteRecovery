@@ -16,10 +16,9 @@ namespace SQLiteRecovery
     public partial class MainUI : Form
     {
         private ICollection<DeviceRecoveryPluginInterface> plugins;
-        private TabPage tabPage;
-        private Dictionary<string,Dictionary<string, string>> apps;
         private Dictionary<string, Dictionary<string, string>> tabs;
         private SQLUtils utils;
+        public string updatedTab { get; set; }
         /// <summary>
         /// constructor
         /// </summary>
@@ -30,7 +29,7 @@ namespace SQLiteRecovery
             plugins = PluginServices.LoadPlugins("Plugins");
 
             utils = new SQLUtils("sqlite_recovery_plugins");
-            apps=new Dictionary<string,Dictionary<string,string>>();
+
             tabs=new Dictionary<string,Dictionary<string,string>>();
             getPluginData();
         }
@@ -64,10 +63,14 @@ namespace SQLiteRecovery
             // initialization
             // 
             Button recoverButton = new Button();
+            Button rootButton = new Button();
             GroupBox groupBox2=new GroupBox();
+            GroupBox groupBox3 = new GroupBox();
             Label dllAddressLabel = new Label();
             Label label2 = new Label();
             Label label1 = new Label();
+            Label label3 = new Label();
+            Label rootLabel = new Label();
             Label osLabel = new Label();
             TabPage tabPage = new TabPage();
             FlowLayoutPanel appsPannel = new FlowLayoutPanel();
@@ -76,6 +79,7 @@ namespace SQLiteRecovery
             //
             tabPage.Controls.Add(recoverButton);
             tabPage.Controls.Add(groupBox2);
+            tabPage.Controls.Add(groupBox3);
             tabPage.Controls.Add(dllAddressLabel);
             tabPage.Controls.Add(label2);
             tabPage.Controls.Add(osLabel);
@@ -139,7 +143,7 @@ namespace SQLiteRecovery
             groupBox2.Controls.Add(appsPannel);
             groupBox2.Location = new System.Drawing.Point(4, 52);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new System.Drawing.Size(576, 315);
+            groupBox2.Size = new System.Drawing.Size(576, 225);
             groupBox2.TabIndex = 4;
             groupBox2.TabStop = false;
             groupBox2.Text = "Select Witch App to recover Data:";
@@ -168,7 +172,46 @@ namespace SQLiteRecovery
                 appsPannel.Controls.Add(checkBox1);
                 item.Add(appsData[i]["name"], appsData[i]["path"]);
             }
-            apps.Add(tabPage.Name, item);
+            // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(rootButton);
+            groupBox3.Controls.Add(rootLabel);
+            groupBox3.Controls.Add(label3);
+            groupBox3.Location = new System.Drawing.Point(4, 279);
+            groupBox3.Name = "groupBox2";
+            groupBox3.Size = new System.Drawing.Size(576, 68);
+            groupBox3.TabIndex = 0;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Root Condition";
+            // 
+            // label1
+            // 
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point(7, 32);
+            label3.Name = "label1";
+            label3.Size = new System.Drawing.Size(75, 13);
+            label3.TabIndex = 0;
+            label3.Text = "This device is ";
+            // 
+            // rootLabel
+            // 
+            rootLabel.AutoSize = true;
+            rootLabel.Location = new System.Drawing.Point(80, 32);
+            rootLabel.Name = "rootLabel";
+            rootLabel.Size = new System.Drawing.Size(38, 13);
+            rootLabel.TabIndex = 1;
+            rootLabel.Text = "ROOT";
+            // 
+            // rootButton
+            // 
+            rootButton.Location = new System.Drawing.Point(156, 27);
+            rootButton.Name = "rootButton";
+            rootButton.Size = new System.Drawing.Size(104, 23);
+            rootButton.TabIndex = 2;
+            rootButton.Text = "UnRoot";
+            rootButton.UseVisualStyleBackColor = true;
+            
             OSTabsControl.Controls.Add(tabPage);
             appsData.Clear();
         }
@@ -188,7 +231,7 @@ namespace SQLiteRecovery
 
         private void generatePluginButton_Click(object sender, EventArgs e)
         {
-            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this);
+            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this,null);
             generatePluginUI.Show();
             this.Hide();
         }
@@ -205,9 +248,16 @@ namespace SQLiteRecovery
             //add new tabs
             foreach (string key in newTabsData.Keys)
             {
-                if (!tabs.ContainsKey(key))
-                    buildPluginUI(newTabsData[key]["name"], newTabsData[key]["os"], newTabsData[key]["dll_address"],
+                if (!tabs.ContainsKey(key) || newTabsData[key]["name"] == updatedTab)
+                {
+                    if (newTabsData[key]["name"] == updatedTab)
+                    {
+                        tabs.Remove(updatedTab);
+                        OSTabsControl.TabPages.RemoveByKey(updatedTab);
+                    }
+                   buildPluginUI(newTabsData[key]["name"], newTabsData[key]["os"], newTabsData[key]["dll_address"],
                    utils.Select("plugins join apps", false, new string[] { "apps.name", "apps.path" }, "plugins.name='" + newTabsData[key]["name"] + "' and plugins.name=apps.plugin_name"));
+                }
                 else
                     tabs.Remove(key);
             }
@@ -230,16 +280,24 @@ namespace SQLiteRecovery
 
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            if (OSTabsControl.TabCount > 0)
+            var confirmResult = MessageBox.Show("Are you sure, you want delete this plugin(" + OSTabsControl.SelectedTab.Name + ") ??",
+                                     "Delete Confirmation !!",
+                                     MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
             {
-                utils.Delete("delete from plugins where name='" + OSTabsControl.SelectedTab.Name + "'");
-                updateTabs();
+                if (OSTabsControl.TabCount > 0)
+                {
+                    utils.Delete("delete from plugins where name='" + OSTabsControl.SelectedTab.Name + "'");
+                    updateTabs();
+                }
             }
+            
+            
         }
 
         private void editButton_Click(object sender, EventArgs e)
         {
-            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this);
+            MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this, OSTabsControl.SelectedTab.Name);
             generatePluginUI.Show();
             this.Hide();
         }

@@ -70,6 +70,7 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Back_button);
             this.Name = "SqliteRecoveryPage";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SqliteRecoveryPage";
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
