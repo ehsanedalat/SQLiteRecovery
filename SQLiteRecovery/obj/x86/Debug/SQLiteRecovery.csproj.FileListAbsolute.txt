@@ -22,9 +22,7 @@ F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\Database.mdf
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\Database_log.ldf
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\SQLiteRecovery.exe
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\SQLiteRecovery.pdb
-F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\DevicePluginLibrary.dll
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\MySQL.dll
-F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\DevicePluginLibrary.pdb
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\MySQL.pdb
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csprojResolveAssemblyReference.cache
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\PluginGenerator.Apps_and_pathes.resources
@@ -36,3 +34,5 @@ F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.S
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csproj.GenerateResource.Cache
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.exe
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.pdb
+F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\PluginLibrary.dll
+F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\bin\Debug\PluginLibrary.pdb

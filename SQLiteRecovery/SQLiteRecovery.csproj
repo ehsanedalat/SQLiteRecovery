@@ -152,13 +152,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DevicePluginLibrary\DevicePluginLibrary\DevicePluginLibrary.csproj">
-      <Project>{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}</Project>
-      <Name>DevicePluginLibrary</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MySQL\MySQL.csproj">
       <Project>{85300A61-D2A4-4693-B738-AA4051341248}</Project>
       <Name>MySQL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PluginLibrary\PluginLibrary.csproj">
+      <Project>{FB73A721-5355-414C-94B8-4B1A4E7D5D6D}</Project>
+      <Name>PluginLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
