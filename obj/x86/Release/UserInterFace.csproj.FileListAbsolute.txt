@@ -1,0 +1,10 @@
+F:\C# Projects\UserInterFace\bin\Release\UserInterFace.exe
+F:\C# Projects\UserInterFace\bin\Release\UserInterFace.pdb
+F:\C# Projects\UserInterFace\bin\Release\XmlParser.dll
+F:\C# Projects\UserInterFace\bin\Release\XmlParser.pdb
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.csprojResolveAssemblyReference.cache
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.Form1.resources
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.Properties.Resources.resources
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.csproj.GenerateResource.Cache
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.exe
+F:\C# Projects\UserInterFace\obj\x86\Release\UserInterFace.pdb

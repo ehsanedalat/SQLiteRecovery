@@ -1,0 +1,52 @@
+
+            setHeaderContentData();
+        }
+
+        public byte[] readHeader(int offset,int required)
+        {
+            byte[] header=new byte[required];
+
+            if (File.Exists(fileName))
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
+                {
+                   
+                    reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                    header = reader.ReadBytes(required);
+                }
+            }
+            return header;
+
+        }
+
+        public void setHeaderContentData()
+        {
+            for (int structNum = 0; structNum < root.arrayOfStructures.Length; structNum++)
+            {
+                int byteSize = root.arrayOfStructures[structNum].size.bytes;
+                int byteOffset = root.arrayOfStructures[structNum].offset.bytes;
+                bool bigEndian = root.arrayOfStructures[structNum].content.type.bigEndian;
+                byte[] data=new byte[byteSize];
+                data = readHeader(byteOffset, byteSize);
+
+                long contentData = 0;
+                if (bigEndian)
+                {
+                    for (int i = 0; i < data.Length; i++)
+                    {
+                        contentData += (data[i] << ((data.Length - 1 - i) * 8));
+                    }
+                }
+                else
+                {
+                    for (int i = data.Length - 1; i > -1; i--)
+                    {
+                        contentData += (data[i] << ((i) * 8));
+                    }
+                }
+
+                root.arrayOfStructures[structNum].content.data = contentData.ToString();
+            }
+        }
+
+    }
