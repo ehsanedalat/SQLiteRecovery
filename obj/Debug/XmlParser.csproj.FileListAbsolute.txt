@@ -1,0 +1,8 @@
+C:\Users\ahmadasadi\Documents\Visual Studio 2010\Projects\XmlParser(6)\bin\Debug\XmlParser.pdb
+C:\Users\ahmadasadi\Documents\Visual Studio 2010\Projects\XmlParser(6)\obj\Debug\XmlParser.pdb
+C:\Users\ahmadasadi\Documents\Visual Studio 2010\Projects\XmlParser(6)\bin\Debug\XmlParser.dll
+C:\Users\ahmadasadi\Documents\Visual Studio 2010\Projects\XmlParser(6)\obj\Debug\XmlParser.dll
+D:\APA\Projects\XmlParser(6)\bin\Debug\XmlParser.dll
+D:\APA\Projects\XmlParser(6)\bin\Debug\XmlParser.pdb
+D:\APA\Projects\XmlParser(6)\obj\Debug\XmlParser.dll
+D:\APA\Projects\XmlParser(6)\obj\Debug\XmlParser.pdb
