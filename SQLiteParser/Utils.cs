@@ -42,11 +42,6 @@ namespace SQLiteParser
                 return Convert.ToInt32(com.ExecuteScalar());
             }
         }
-        public static int getPageSize(string fileName)
-        {
-            byte[]result=ReadingFromFile(fileName, 16, 2);
-            Array.Reverse(result);
-            return BitConverter.ToInt16(result, 0);
-        }
+        
     }
 }
