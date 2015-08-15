@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace SQLiteParser
 {
@@ -9,8 +10,8 @@ namespace SQLiteParser
     {
         static void Main(string[] args)
         {
-            System.Console.Write(Utils.getPageSize(@"F:\SQLite DBs\MMSSMS\mmssms.db"));
-            System.Console.ReadLine();
+            SQLiteParser parser = new SQLiteParser(@"F:\SQLite DBs\MMSSMS\mmssms.db", @"F:\SQLite DBs\MMSSMS\mmssms_c.db",true,@"F:\SQLite DBs\MMSSMS\result.txt");
+           
         }
     }
 }
