@@ -19,21 +19,24 @@ namespace SQLiteParser
         private const int pageSizeOffsetValue = 16;
         private const int pageSizeLengthValue = 2;
         private byte[] currentPage;
+        private byte[] headerBytesOfSQLiteFile;
+        private const int dbHeaderSize = 100;
         private string dbFilePath;
         private const int internalPageCellsPionerLength = 4;
-        public ArrayList deletedRecords { get; private set; }
+        private ArrayList tableInfo;
+        private ArrayList UnaloocatedSpaceDeletedRecords { get; private set; }
 
-        /*public SQLiteParser(string dbFilePathForIO, string dbFilePathForQuery, string tableName)
+        public SQLiteParser(string dbFilePath, string dbCopyFilePath)
         {
-            pageSize = getPageSize(dbFilePathForIO);
-            rootPageNum = Utils.getRootPageNumber(tableName, dbFilePathForQuery);
-            this.dbFilePath = dbFilePathForIO;
-            deletedRecords = new ArrayList();
+            this.dbFilePath = dbFilePath;
+            this.UnaloocatedSpaceDeletedRecords = new ArrayList();
 
-            BTreeTraversal(rootPageNum);
+            pageSize = getPageSize(dbFilePath);
+            tableInfo = Utils.getAllTableInfo(dbCopyFilePath);
+            headerBytesOfSQLiteFile = Utils.ReadingFromFile(dbFilePath, 0, dbHeaderSize);
 
-        }*/
-
+        }
+        
         private void BTreeTraversal(int currentPageNum)
         {
             int currentPageOffset = 0;
@@ -45,13 +48,16 @@ namespace SQLiteParser
 
             if (currentPage[0] == leafNodeTypeValue)
             {
-                getDeletedRecords(numOfCells, cellsOffset, currentPageNum);
+                getDeletedRecordsFromUnallocatedSpaceAndFreeBlocks(numOfCells, cellsOffset, currentPageNum);
+
+                getRecordsFromLeafPagesInTableBTree();
+
                 return;
             }
             else if (currentPage[0] == internalNodeTypeValue)
             {
                 int[] childPtr = getChildsPtr(numOfCells, ref cellsOffset);
-                getDeletedRecords(numOfCells, cellsOffset, currentPageNum);
+                getDeletedRecordsFromUnallocatedSpaceAndFreeBlocks(numOfCells, cellsOffset, currentPageNum);
 
                 foreach (int ptr in childPtr)
                 {
@@ -75,7 +81,7 @@ namespace SQLiteParser
             return childPtr;
         }
 
-        private void getDeletedRecords(int numOfCells, int cellsOffset, int pageNum)
+        private void getDeletedRecordsFromUnallocatedSpaceAndFreeBlocks(int numOfCells, int cellsOffset, int pageNum)
         {
             getAllFreeBlockListData(BitConverter.ToInt16(new byte[] { currentPage[2], currentPage[1] }, 0), pageNum);
             getDataFromUnallocatedSpace(numOfCells * 2 + leafPageHeaderLength, cellsOffset, pageNum);
@@ -112,7 +118,7 @@ namespace SQLiteParser
             string data = Encoding.UTF8.GetString(currentPage, unallocatedSpaceOffset, cellsOffset - unallocatedSpaceOffset);
             data = data.Replace("\0", "");
             if(!String.IsNullOrEmpty(data))
-                deletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
+                UnaloocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
         }
 
         private void getDataFromFreeBlock(int currentFreeBlockOffset, int currentFreeBlockSize, int pageNum)
@@ -120,7 +126,7 @@ namespace SQLiteParser
             string data = Encoding.UTF8.GetString(currentPage, currentFreeBlockOffset + 4, currentFreeBlockSize - 4);
             data = data.Replace("\0", "");
             if (!String.IsNullOrEmpty(data))
-                deletedRecords.Add(new string[] { pageNum + "", "FREEBLOCK", data });
+                UnaloocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREEBLOCK", data });
         }
 
         private int getPageSize(string fileName)
@@ -130,28 +136,63 @@ namespace SQLiteParser
             return BitConverter.ToInt16(result, 0);
         }
 
-
-        
-        public SQLiteParser(string dbFilePath, string dbCopyFilePath, bool resultInFile, string resultPath)
+        public ArrayList UnAllocatedSpacesParser()
         {
-            this.dbFilePath = dbFilePath;
-            pageSize = getPageSize(dbFilePath);
-            ArrayList tableInfo = Utils.getAllTableInfo(dbCopyFilePath);
-            this.deletedRecords = new ArrayList();
             foreach (string[] item in tableInfo)
             {
                 BTreeTraversal(Convert.ToInt32(item[1]));
             }
 
-            if (resultInFile)
+            return UnaloocatedSpaceDeletedRecords;
+        }
+
+        public void FreeListPagesParser()
+        {
+            int firstTrunkPageNum = BitConverter.ToInt32(new byte[] { headerBytesOfSQLiteFile[35], headerBytesOfSQLiteFile[34], headerBytesOfSQLiteFile[33], headerBytesOfSQLiteFile[32] }, 0);
+            if (firstTrunkPageNum != 0)
             {
-                using (BinaryWriter writer = new BinaryWriter(File.Open(resultPath, FileMode.Create)))
-                {
-                    foreach (string[] item in this.deletedRecords)
-                        writer.Write("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2] + "\r\n");
-                }
+                getDeletedPagesFromFreeList(firstTrunkPageNum);
             }
         }
+
+        private void getDeletedPagesFromFreeList(int trunkPageNum)
+        {
+            int offset=(trunkPageNum-1)*pageSize;
+            currentPage = Utils.ReadingFromFile(dbFilePath, offset, pageSize);
+            int nextTrunkPageNum = BitConverter.ToInt32(new byte[] { currentPage[offset + 3], currentPage[offset + 2], currentPage[offset + 1], currentPage[offset] }, 0);
+            int numOfLeafPagesHear = BitConverter.ToInt32(new byte[] { currentPage[offset + 7], currentPage[offset + 6], currentPage[offset + 5], currentPage[offset+4] }, 0);
+            offset = offset + 8;
+            for (int i = 0; i < numOfLeafPagesHear; i++)
+            {
+                int deletedLeafPageNum = BitConverter.ToInt32(new byte[] { currentPage[offset + 3 + i * 4], currentPage[offset + 2 + i * 4], currentPage[offset + 1 + i * 4], currentPage[offset + i * 4] }, 0);
+                getDeletedRecordsFromDeletedPage(deletedLeafPageNum);
+            }
+
+            if (nextTrunkPageNum != 0)
+                getDeletedPagesFromFreeList(nextTrunkPageNum);
+            else return;
+
+        }
+
+        private void getDeletedRecordsFromDeletedPage(int deletedLeafPageNum)
+        {
+            BTreeTraversal(deletedLeafPageNum);
+        }
+
+        private void getRecordsFromLeafPagesInTableBTree()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RolbackJournalFileParser()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WALFileParser()
+        {
+            throw new NotImplementedException();
+        }      
     }
 
     
