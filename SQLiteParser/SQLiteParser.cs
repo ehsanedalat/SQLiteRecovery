@@ -24,12 +24,26 @@ namespace SQLiteParser
         private string dbFilePath;
         private const int internalPageCellsPionerLength = 4;
         private ArrayList tableInfo;
-        private ArrayList UnaloocatedSpaceDeletedRecords { get; private set; }
+        private ArrayList UnaloocatedSpaceDeletedRecords { get; set; }
+        private Dictionary<int, ArrayList> sqliteTypes;
 
-        public SQLiteParser(string dbFilePath, string dbCopyFilePath)
+        internal SQLiteParser(string dbFilePath, string dbCopyFilePath)
         {
             this.dbFilePath = dbFilePath;
             this.UnaloocatedSpaceDeletedRecords = new ArrayList();
+            sqliteTypes = new Dictionary<int, ArrayList>();
+            sqliteTypes.Add(0, new ArrayList() { "NULL", "0" });
+            sqliteTypes.Add(1, new ArrayList() { "INTEGER", "1" });
+            sqliteTypes.Add(2, new ArrayList() { "INTEGER", "2" });
+            sqliteTypes.Add(3, new ArrayList() { "INTEGER", "3" });
+            sqliteTypes.Add(4, new ArrayList() { "INTEGER", "4" });
+            sqliteTypes.Add(5, new ArrayList() { "INTEGER", "6" });
+            sqliteTypes.Add(6, new ArrayList() { "INTEGER", "8" });
+            sqliteTypes.Add(7, new ArrayList() { "FLOAT", "8" });
+            sqliteTypes.Add(8, new ArrayList() { "INTEGER", "0" });
+            sqliteTypes.Add(9, new ArrayList() { "INTEGER", "0" });
+            sqliteTypes.Add(12, new ArrayList() { "BLOB", "*" });
+            sqliteTypes.Add(13, new ArrayList() { "STRING", "*" });
 
             pageSize = getPageSize(dbFilePath);
             tableInfo = Utils.getAllTableInfo(dbCopyFilePath);
@@ -37,7 +51,7 @@ namespace SQLiteParser
 
         }
         
-        private void BTreeTraversal(int currentPageNum)
+        private void BTreeTraversal(int currentPageNum)// TODO test for page 0 it has 100 bytes of header
         {
             int currentPageOffset = 0;
             if(currentPageNum!=0)
@@ -50,7 +64,7 @@ namespace SQLiteParser
             {
                 getDeletedRecordsFromUnallocatedSpaceAndFreeBlocks(numOfCells, cellsOffset, currentPageNum);
 
-                getRecordsFromLeafPagesInTableBTree();
+                getRecordsFromLeafPagesInTableBTree(currentPageNum);
 
                 return;
             }
@@ -136,7 +150,7 @@ namespace SQLiteParser
             return BitConverter.ToInt16(result, 0);
         }
 
-        public ArrayList UnAllocatedSpacesParser()
+        internal ArrayList UnAllocatedSpacesParser()
         {
             foreach (string[] item in tableInfo)
             {
@@ -146,7 +160,7 @@ namespace SQLiteParser
             return UnaloocatedSpaceDeletedRecords;
         }
 
-        public void FreeListPagesParser()
+        internal void FreeListPagesParser()
         {
             int firstTrunkPageNum = BitConverter.ToInt32(new byte[] { headerBytesOfSQLiteFile[35], headerBytesOfSQLiteFile[34], headerBytesOfSQLiteFile[33], headerBytesOfSQLiteFile[32] }, 0);
             if (firstTrunkPageNum != 0)
@@ -179,17 +193,109 @@ namespace SQLiteParser
             BTreeTraversal(deletedLeafPageNum);
         }
 
-        private void getRecordsFromLeafPagesInTableBTree()
+        private void getRecordsFromLeafPagesInTableBTree(int currentPageNum)
+        {
+            int currentPageOffset = 0;
+            if (currentPageNum != 0)
+                currentPageOffset = (currentPageNum - 1) * pageSize;
+            currentPage = Utils.ReadingFromFile(dbFilePath, currentPageOffset, pageSize);
+            int numOfCells = BitConverter.ToInt16(new byte[] { currentPage[4], currentPage[3] }, 0);
+            //int cellsOffset = BitConverter.ToInt16(new byte[] { currentPage[6], currentPage[5] }, 0);
+
+            int []cellsOffset=new int[numOfCells];
+            int offset = 8;
+            for (int i = 0; i < cellsOffset.Length; i++)
+            {
+                cellsOffset[i] = BitConverter.ToInt16(new byte[] { currentPage[offset + 1], currentPage[offset] }, 0);
+                offset = offset + 2;
+            }
+
+            foreach (int ptr in cellsOffset)
+            {
+                readDbRecordFromCell(ptr);
+            }
+
+        }
+
+        private void readDbRecordFromCell(int ptr)
+        {
+            byte[] buffer=new byte[9];
+            Array.Copy(currentPage,ptr,buffer,0,9);
+            long recordSizeValue=0;
+            int recordSizeArrayLength=Utils.vaiInt2Int(buffer, ref recordSizeValue);
+            ptr = ptr + recordSizeArrayLength;
+
+            Array.Copy(currentPage, ptr, buffer, 0, 9);
+            long keyValueField = 0;
+            int keyValueFieldLength = Utils.vaiInt2Int(buffer, ref keyValueField);
+            ptr = ptr + keyValueFieldLength;
+
+            long min_embeded_fraction=headerBytesOfSQLiteFile[22];
+            long max_local = pageSize - 35;
+            long min_local = (pageSize - 12) * min_embeded_fraction / 255 - 23;
+            long local_size = min_local + (recordSizeValue - min_local) % (pageSize - 4);
+            if (local_size > max_local)
+                local_size = min_local;
+            long nextOverFlowPageNumFieldOffset = ptr + local_size;
+
+            if (recordSizeValue <= max_local)// small records
+            {
+                long recordHeaderSize = 0;
+                Array.Copy(currentPage,ptr,buffer,0,9);
+                int index = Utils.vaiInt2Int(buffer, ref recordSizeValue);
+                ptr = ptr + index;
+                Dictionary<int, long> schema = new Dictionary<int, long>();
+                for (int i = 0; ptr < recordHeaderSize; i++)
+                {
+                    long colLength = extractCurrentColLength(ref ptr, buffer, ref index);
+                    schema.Add(i, colLength);
+                }
+            }
+            else//big records //TODO Complete this part... 
+            {
+                long recordHeaderSize = 0;
+                Array.Copy(currentPage, ptr, buffer, 0, 9);
+                int index = Utils.vaiInt2Int(buffer, ref recordSizeValue);
+                ptr = ptr + index;
+                Dictionary<int, long> schema = new Dictionary<int, long>();
+                for (int i = 0; ptr < nextOverFlowPageNumFieldOffset; i++)
+                {
+                    long colLength = extractCurrentColLength(ref ptr, buffer, ref index);
+                    schema.Add(i, colLength);
+                }
+            }
+
+        }
+
+        private long extractCurrentColLength(ref int ptr, byte[] buffer, ref int index)
+        {
+            long typeNValue = 0;
+            Array.Copy(currentPage, ptr, buffer, 0, 9);
+            index = Utils.vaiInt2Int(buffer, ref typeNValue);
+            ptr = ptr + index;
+            long colLength = 0;
+            if (typeNValue > 11 && typeNValue % 2 == 0)
+            {
+                colLength = (typeNValue - 12) / 2;
+            }
+            else if (typeNValue > 11 && typeNValue % 2 == 1)
+            {
+                colLength = (typeNValue - 13) / 2;
+            }
+            else
+            {
+                ArrayList item = sqliteTypes[Convert.ToInt16(typeNValue)];
+                colLength = Convert.ToInt16(item.IndexOf(1));
+            }
+            return colLength;
+        }
+
+        internal void RolbackJournalFileParser()
         {
             throw new NotImplementedException();
         }
 
-        public void RolbackJournalFileParser()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void WALFileParser()
+        internal void WALFileParser()
         {
             throw new NotImplementedException();
         }      

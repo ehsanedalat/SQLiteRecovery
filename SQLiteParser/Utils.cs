@@ -11,7 +11,7 @@ namespace SQLiteParser
 {
     class Utils
     {
-        public static byte[] ReadingFromFile(string fileName, int offset, int length)
+        internal static byte[] ReadingFromFile(string fileName, int offset, int length)
         {
             if (File.Exists(fileName))
             {
@@ -29,7 +29,7 @@ namespace SQLiteParser
             return null;
         }
 
-        public static int getRootPageNumber(string tableName, string dbPath)
+        internal static int getRootPageNumber(string tableName, string dbPath)
         {
 
 
@@ -47,7 +47,7 @@ namespace SQLiteParser
                 return result;
             }
         }
-        public static ArrayList getAllTableInfo(string dbPath)
+        internal static ArrayList getAllTableInfo(string dbPath)
         {
 
 
@@ -69,6 +69,61 @@ namespace SQLiteParser
 
                 return result;
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="varIntArray">Array with the length of 8(1-9)</param>
+        /// <param name="value">call by refrence of return value, primary value is zero</param>
+        /// <returns>index of finished varInt type</returns>
+        internal static int vaiInt2Int(byte[] varIntArray, ref long value)
+        {
+            long[] result=new long[9];
+            int index = 0;
+
+            for (int i = 0; i < varIntArray.Length;i++ )
+            {
+                if (i < varIntArray.Length - 1)
+                {
+                    if ((varIntArray[i] & 0x80) != 0)// x and 1000 0000
+                    {
+                        result[i] = Convert.ToInt64((varIntArray[i] & 0x7F));// x and 0111 1111
+                    }
+                    else
+                    {
+                        result[i] = Convert.ToInt64(varIntArray[i]);
+                        index = i;
+                        break;
+                    }
+                }
+                else
+                {
+                    result[i] = Convert.ToInt64(varIntArray[i]);
+                    index = i;
+                    break;
+                }
+            }
+            if (index != 8)
+                for (int i = 0; i <= index; i++)
+                {
+                    long x = ((long)result[index - i] << ((i) * 8 - i));
+                    value = value | x;
+                    //Console.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
+                }
+            else
+            {
+                for (int i = 0; i <= index; i++)
+                {
+                    long x = 0;
+                    if(i!=0)
+                        x = ((long)result[index - i] << ((i) * 8 - (i - 1)));
+                    else
+                        x = (long)result[index - i];
+                    value = value | x;
+                    //Console.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
+                }
+            }
+            return index;
         }
     }
 }
