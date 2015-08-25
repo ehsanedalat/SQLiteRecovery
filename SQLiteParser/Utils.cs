@@ -123,6 +123,7 @@ namespace SQLiteParser
                     //Console.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
                 }
             }
+            index++;
             return index;
         }
     }
