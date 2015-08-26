@@ -48,5 +48,26 @@ namespace SQLiteParser
             }
             
         }
+
+        public void freeListRetrival()
+        {
+            ArrayList result = parser.FreeListPagesParser(); 
+            string value = "";
+            using (BinaryWriter writer = new BinaryWriter(File.Open(@"F:\SQLite DBs\MMSSMS\Seyed\result.txt", FileMode.Create)))
+            {
+
+
+                foreach (Dictionary<int, string> row in result)
+                {
+                    value = "ROW -> | ";
+                    for (int i = 0; row.ContainsKey(i); i++)
+                    {
+                        value = value + "col: " + i + " -> " + row[i] + " | ";
+                    }
+                    writer.Write(value + "\r\n");
+
+                }
+            }
+        }
     }
 }

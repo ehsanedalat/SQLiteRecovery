@@ -15,7 +15,7 @@ namespace SQLiteParser
 
             SQLiteInterface sqlite = new SQLiteInterface();
             //sqlite.readSMS();
-            sqlite.unAllocatedSpases2File();
+            sqlite.freeListRetrival();
             Console.ReadLine();
         }
     }

@@ -25,7 +25,7 @@ namespace SQLiteParser
         private string dbFilePath;
         private const int internalPageCellsPionerLength = 4;
         private ArrayList tableInfo;
-        private ArrayList UnaloocatedSpaceDeletedRecords { get; set; }
+        private ArrayList UnallocatedSpaceDeletedRecords { get; set; }
         private Dictionary<int, ArrayList> sqliteTypes;
 
         private ArrayList records = new ArrayList();//TODO change dataset!
@@ -33,7 +33,7 @@ namespace SQLiteParser
         internal SQLiteParser(string dbFilePath, string dbCopyFilePath)
         {
             this.dbFilePath = dbFilePath;
-            this.UnaloocatedSpaceDeletedRecords = new ArrayList();
+            this.UnallocatedSpaceDeletedRecords = new ArrayList();
             sqliteTypes = new Dictionary<int, ArrayList>();
             sqliteTypes.Add(0, new ArrayList() { "NULL", "0" });
             sqliteTypes.Add(1, new ArrayList() { "INTEGER_1", "1" });
@@ -56,7 +56,8 @@ namespace SQLiteParser
 
         public ArrayList readSMSs()
         {
-            BTreeTraversal(10);
+            records.Clear();
+            BTreeTraversal(9);//18
             return records;
         }
 
@@ -142,7 +143,7 @@ namespace SQLiteParser
             string data = Encoding.UTF8.GetString(currentPage, unallocatedSpaceOffset, cellsOffset - unallocatedSpaceOffset);
             data = data.Replace("\0", "");
             if(!String.IsNullOrEmpty(data))
-                UnaloocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
+                UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
         }
 
         private void getDataFromFreeBlock(int currentFreeBlockOffset, int currentFreeBlockSize, int pageNum)
@@ -150,7 +151,7 @@ namespace SQLiteParser
             string data = Encoding.UTF8.GetString(currentPage, currentFreeBlockOffset + 4, currentFreeBlockSize - 4);
             data = data.Replace("\0", "");
             if (!String.IsNullOrEmpty(data))
-                UnaloocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREEBLOCK", data });
+                UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREEBLOCK", data });
         }
 
         private int getPageSize(string fileName)
@@ -166,17 +167,19 @@ namespace SQLiteParser
             {
                 BTreeTraversal(Convert.ToInt32(item[1]));
             }
-
-            return UnaloocatedSpaceDeletedRecords;
+            //BTreeTraversal(3);
+            return UnallocatedSpaceDeletedRecords;
         }
 
-        internal void FreeListPagesParser()
+        internal ArrayList FreeListPagesParser()//TODO Debug this part
         {
+            records.Clear();
             int firstTrunkPageNum = BitConverter.ToInt32(new byte[] { headerBytesOfSQLiteFile[35], headerBytesOfSQLiteFile[34], headerBytesOfSQLiteFile[33], headerBytesOfSQLiteFile[32] }, 0);
             if (firstTrunkPageNum != 0)
             {
                 getDeletedPagesFromFreeList(firstTrunkPageNum);
             }
+            return records;
         }
 
         private void getDeletedPagesFromFreeList(int trunkPageNum)
@@ -222,10 +225,6 @@ namespace SQLiteParser
 
             foreach (int ptr in cellsOffset)
             {
-                if (ptr == 2207)
-                {
-                    Debug.WriteLine("");
-                }
                 readDbRecordFromCell(ptr);
             }
 
@@ -233,11 +232,19 @@ namespace SQLiteParser
 
         private void readDbRecordFromCell(int ptr)
         {
+            if (ptr == 247)
+                Debug.Write("");
             byte[] buffer=new byte[9];
             bool isOverflowPage=false;
             int nextOverflowPage=0;
-
-            Array.Copy(currentPage,ptr,buffer,0,9);
+            try
+            {
+                Array.Copy(currentPage, ptr, buffer, 0, 9);
+            }
+            catch (ArgumentException ex)
+            {
+                Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length - ptr);
+            }
             long recordSizeValue=0;
             int recordSizeArrayLength=Utils.vaiInt2Int(buffer, ref recordSizeValue);
             ptr = ptr + recordSizeArrayLength;
@@ -262,10 +269,11 @@ namespace SQLiteParser
             long nextOverFlowPageNumFieldOffset = ptr + local_size;
             Dictionary<int, ArrayList> schema = new Dictionary<int, ArrayList>();
 
-
+            
             if (recordSizeValue <= max_local)// small records
             {
                 long recordHeaderSize = 0;
+                nextOverFlowPageNumFieldOffset = pageSize;
                 try
                 {
                     Array.Copy(currentPage, ptr, buffer, 0, 9);
@@ -281,6 +289,8 @@ namespace SQLiteParser
                 
                 for (int i = 0; recordHeaderSize!=0; i++)
                 {
+                    if (ptr==260)
+                        Debug.Write("");
                     ArrayList item = extractCurrentColLength(ref ptr, buffer,0,ref recordHeaderSize);
                     schema.Add(i, item);
                 }
@@ -297,6 +307,8 @@ namespace SQLiteParser
                 int colNum = 0;
                 for (; ptr < nextOverFlowPageNumFieldOffset && recordHeaderSize != 0; colNum++)
                 {
+                    if (ptr == 260)
+                        Debug.Write("");
                     ArrayList item= extractCurrentColLength(ref ptr, buffer, nextOverFlowPageNumFieldOffset,ref recordHeaderSize);
                     schema.Add(colNum, item);
                 }
@@ -307,6 +319,10 @@ namespace SQLiteParser
                     getDataFromOverflowPages(nextOverflowPage, ref ptr, ref schema, colNum, ref recordHeaderSize);
                 }
             }
+            if (schema.Count == 1)
+            {
+                Debug.WriteLine("");
+            }
             //TODO choose a suitable dataset for data grid view  
 
             Dictionary<int,string> currentRecord=new Dictionary<int,string>();
@@ -316,29 +332,50 @@ namespace SQLiteParser
                 string type = (string)item[0];
                 long colLength = Convert.ToInt64(item[1]);
                 buffer = new byte[colLength];
-                if (colLength + ptr <= nextOverFlowPageNumFieldOffset)
-                {
-                    Array.Copy(currentPage, ptr, buffer, 0, colLength);
-                    ptr = ptr + (int)colLength;
-                }
-                else
-                {
+                int bufPtr = 0;
+                nextOverflowPage = BitConverter.ToInt32(new byte[] { currentPage[3], currentPage[2], currentPage[1], currentPage[0] }, 0);
 
-                    if (!isOverflowPage)
+                if (!isOverflowPage)
+                {
+                    if (colLength + ptr <= nextOverFlowPageNumFieldOffset)
                     {
-                        Array.Copy(currentPage, ptr, buffer, 0, nextOverFlowPageNumFieldOffset - ptr);
-                        nextOverflowPage = BitConverter.ToInt32(new byte[] { currentPage[nextOverFlowPageNumFieldOffset + 3], currentPage[nextOverFlowPageNumFieldOffset + 2], currentPage[nextOverFlowPageNumFieldOffset + 1], currentPage[nextOverFlowPageNumFieldOffset] }, 0);
+                        Array.Copy(currentPage, ptr, buffer, 0, colLength);
+                        ptr = ptr + (int)colLength;
+                        bufPtr = buffer.Length;
                     }
                     else
                     {
-                        Array.Copy(currentPage, ptr, buffer, 0, pageSize - ptr);
-                        nextOverflowPage = BitConverter.ToInt32(new byte[] { currentPage[3], currentPage[2], currentPage[1], currentPage[0] }, 0);
+                        Array.Copy(currentPage, ptr, buffer, 0, nextOverFlowPageNumFieldOffset - ptr);
+                        bufPtr = pageSize - ptr;
+                        nextOverflowPage = BitConverter.ToInt32(new byte[] { currentPage[nextOverFlowPageNumFieldOffset + 3], currentPage[nextOverFlowPageNumFieldOffset + 2], currentPage[nextOverFlowPageNumFieldOffset + 1], currentPage[nextOverFlowPageNumFieldOffset] }, 0);
+                        ptr = pageSize;
+
+                        isOverflowPage = true;
                     }
-                    currentPage = Utils.ReadingFromFile(dbFilePath, (nextOverflowPage - 1) * pageSize, pageSize);
-                    Array.Copy(currentPage, 4, buffer, nextOverFlowPageNumFieldOffset - ptr, buffer.Length - (nextOverFlowPageNumFieldOffset - ptr));
-                    ptr = 4 + buffer.Length - ((int)nextOverFlowPageNumFieldOffset - ptr);
                 }
-                
+                if (isOverflowPage)
+                {
+                    do
+                    {
+
+                        if (pageSize - ptr >= buffer.Length - bufPtr)
+                        {
+                            Array.Copy(currentPage, ptr, buffer, bufPtr, buffer.Length - bufPtr);
+                            bufPtr = buffer.Length;
+                            ptr = ptr + buffer.Length - bufPtr;
+                            break;
+                        }
+                        else
+                        {
+                            Array.Copy(currentPage, ptr, buffer, bufPtr, pageSize - ptr);
+                            bufPtr = bufPtr + pageSize - ptr;
+                            ptr = pageSize;
+                        }
+                        currentPage = Utils.ReadingFromFile(dbFilePath, (nextOverflowPage - 1) * pageSize, pageSize);
+                        nextOverflowPage = BitConverter.ToInt32(new byte[] { currentPage[3], currentPage[2], currentPage[1], currentPage[0] }, 0);
+                        ptr = 4;
+                    } while (bufPtr != buffer.Length);
+                }
 
                 string value = "";
                 byte[] buf;
@@ -417,6 +454,8 @@ namespace SQLiteParser
         /// <returns>Array list of 2 string first one is type and the second one is length.</returns>
         private ArrayList extractCurrentColLength(ref int ptr, byte[] buffer, long nextOverflowPageOffset,ref long headerSize)
         {
+            if (ptr == 260)
+                Debug.Write("");
             long typeNValue = 0;
 
             if (nextOverflowPageOffset == 0)
@@ -472,18 +511,20 @@ namespace SQLiteParser
             return item;
         }
 
-        internal void RolbackJournalFileParser()
-        {
-            throw new NotImplementedException();
-        }
-
         internal void WALFileParser()
         {
             throw new NotImplementedException();
         }      
     }
 
-    
+    internal class JournalFileParser
+    {
+        private string journalFilePath;
 
-    
+        internal JournalFileParser(string journalFilePath)
+        {
+            this.journalFilePath = journalFilePath;
+
+        }
+    }
 }
