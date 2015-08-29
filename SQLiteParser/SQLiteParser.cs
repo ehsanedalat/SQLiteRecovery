@@ -57,7 +57,7 @@ namespace SQLiteParser
         public ArrayList readSMSs()
         {
             records.Clear();
-            BTreeTraversal(9);//18
+            BTreeTraversal(12);//18//10
             return records;
         }
 
@@ -186,13 +186,20 @@ namespace SQLiteParser
         {
             int offset=(trunkPageNum-1)*pageSize;
             currentPage = Utils.ReadingFromFile(dbFilePath, offset, pageSize);
-            int nextTrunkPageNum = BitConverter.ToInt32(new byte[] { currentPage[offset + 3], currentPage[offset + 2], currentPage[offset + 1], currentPage[offset] }, 0);
-            int numOfLeafPagesHear = BitConverter.ToInt32(new byte[] { currentPage[offset + 7], currentPage[offset + 6], currentPage[offset + 5], currentPage[offset+4] }, 0);
-            offset = offset + 8;
+            int nextTrunkPageNum = BitConverter.ToInt32(new byte[] { currentPage[3], currentPage[2], currentPage[1], currentPage[0] }, 0);
+            int numOfLeafPagesHear = BitConverter.ToInt32(new byte[] { currentPage[7], currentPage[6], currentPage[5], currentPage[4] }, 0);
+            offset = 8;
+            int [] freepages=new int[numOfLeafPagesHear];
             for (int i = 0; i < numOfLeafPagesHear; i++)
             {
-                int deletedLeafPageNum = BitConverter.ToInt32(new byte[] { currentPage[offset + 3 + i * 4], currentPage[offset + 2 + i * 4], currentPage[offset + 1 + i * 4], currentPage[offset + i * 4] }, 0);
-                getDeletedRecordsFromDeletedPage(deletedLeafPageNum);
+                freepages[i] = BitConverter.ToInt32(new byte[] { currentPage[offset + 3 + i * 4], currentPage[offset + 2 + i * 4], currentPage[offset + 1 + i * 4], currentPage[offset + i * 4] }, 0);
+                offset = offset + 4;
+            }
+
+            foreach (int pageNum in freepages)
+            {
+                if (pageNum != 0)
+                    getDeletedRecordsFromDeletedPage(pageNum);
             }
 
             if (nextTrunkPageNum != 0)
@@ -208,6 +215,8 @@ namespace SQLiteParser
 
         private void getRecordsFromLeafPagesInTableBTree(int currentPageNum)
         {
+            if (currentPageNum == 530)
+                Debug.Write("");
             int currentPageOffset = 0;
             if (currentPageNum != 0)
                 currentPageOffset = (currentPageNum - 1) * pageSize;
@@ -225,6 +234,8 @@ namespace SQLiteParser
 
             foreach (int ptr in cellsOffset)
             {
+                if (ptr == 801)
+                    Debug.Write("");
                 readDbRecordFromCell(ptr);
             }
 

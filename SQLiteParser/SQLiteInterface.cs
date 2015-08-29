@@ -11,16 +11,22 @@ namespace SQLiteParser
     class SQLiteInterface
     {
         private SQLiteParser parser;
+        private JournalFileParser journalParser;
+        private string path;
+
         public SQLiteInterface()
         {
-            parser = new SQLiteParser(@"F:\SQLite DBs\MMSSMS\Seyed\mmssms.db", @"F:\SQLite DBs\MMSSMS\Seyed\mmssms_c.db");
+            //path = @"F:\SQLite DBs\MMSSMS\Seyed\";
+            //parser = new SQLiteParser(path+"mmssms.db", path+"mmssms_c.db");
+            path = @"F:\SQLite DBs\Browser\MyChrome\";
+            parser = new SQLiteParser(path+"History", path+"History_c");
             
         }
 
         public void unAllocatedSpases2File()
         {
             ArrayList result = parser.UnAllocatedSpacesParser();
-            using (BinaryWriter writer = new BinaryWriter(File.Open(@"F:\SQLite DBs\MMSSMS\Seyed\result.txt", FileMode.Create)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(path+"result.txt", FileMode.Create)))
             {
                 foreach (string[] item in result)
                     writer.Write("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2] + "\r\n");
@@ -31,7 +37,7 @@ namespace SQLiteParser
         {
             ArrayList result = parser.readSMSs();
             string value = "";
-            using (BinaryWriter writer = new BinaryWriter(File.Open(@"F:\SQLite DBs\MMSSMS\Seyed\result.txt", FileMode.Create)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(path+"result.txt", FileMode.Create)))
             {
                 
                 
@@ -53,7 +59,7 @@ namespace SQLiteParser
         {
             ArrayList result = parser.FreeListPagesParser(); 
             string value = "";
-            using (BinaryWriter writer = new BinaryWriter(File.Open(@"F:\SQLite DBs\MMSSMS\Seyed\result.txt", FileMode.Create)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(path+"result.txt", FileMode.Create)))
             {
 
 
