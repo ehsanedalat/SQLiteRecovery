@@ -141,7 +141,7 @@ namespace SQLiteParser
         private void getDataFromUnallocatedSpace(int unallocatedSpaceOffset, int cellsOffset, int pageNum)
         {
             string data = Encoding.UTF8.GetString(currentPage, unallocatedSpaceOffset, cellsOffset - unallocatedSpaceOffset);
-            
+
             //var reg = new Regex(@"^[\u0600-\u06FF\uFB8A\u067E\u0686\u06AF\u0021-\u007E]+$");
             //reg.Matches(data)
             data = data.Replace("\0", "");
@@ -152,23 +152,31 @@ namespace SQLiteParser
                     data = data.Replace(c, ' ');
 
                 }
-                
+
             }
             data = data.Replace("  ", string.Empty);
 
             if (!String.IsNullOrEmpty(data))
-            {
                 UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
-            }
-
         }
 
         private void getDataFromFreeBlock(int currentFreeBlockOffset, int currentFreeBlockSize, int pageNum)
         {
             string data = Encoding.UTF8.GetString(currentPage, currentFreeBlockOffset + 4, currentFreeBlockSize - 4);
             data = data.Replace("\0", "");
+            foreach (char c in data)
+            {
+                if (!((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0021 && c <= 0x007E) || c == 0xFB8A || c == 0x067E || c == 0x0686 || c == 0x06AF))
+                {
+                    data = data.Replace(c, ' ');
+
+                }
+
+            }
+            data = data.Replace("  ", string.Empty);
+
             if (!String.IsNullOrEmpty(data))
-                UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREEBLOCK", data });
+                UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREE BLOCK", data });
         }
 
         private int getPageSize(string fileName)
