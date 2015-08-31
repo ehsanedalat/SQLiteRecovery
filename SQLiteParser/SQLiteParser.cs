@@ -75,7 +75,7 @@ namespace SQLiteParser
             {
                 getDeletedRecordsFromUnallocatedSpaceAndFreeBlocks(numOfCells, cellsOffset, currentPageNum);
 
-                getRecordsFromLeafPagesInTableBTree(currentPageNum);
+                //getRecordsFromLeafPagesInTableBTree(currentPageNum);
 
                 return;
             }
@@ -141,9 +141,26 @@ namespace SQLiteParser
         private void getDataFromUnallocatedSpace(int unallocatedSpaceOffset, int cellsOffset, int pageNum)
         {
             string data = Encoding.UTF8.GetString(currentPage, unallocatedSpaceOffset, cellsOffset - unallocatedSpaceOffset);
+            
+            //var reg = new Regex(@"^[\u0600-\u06FF\uFB8A\u067E\u0686\u06AF\u0021-\u007E]+$");
+            //reg.Matches(data)
             data = data.Replace("\0", "");
-            if(!String.IsNullOrEmpty(data))
+            foreach (char c in data)
+            {
+                if (!((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0021 && c <= 0x007E) || c == 0xFB8A || c == 0x067E || c == 0x0686 || c == 0x06AF))
+                {
+                    data = data.Replace(c, ' ');
+
+                }
+                
+            }
+            data = data.Replace("  ", string.Empty);
+
+            if (!String.IsNullOrEmpty(data))
+            {
                 UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "UNALLOCATED", data });
+            }
+
         }
 
         private void getDataFromFreeBlock(int currentFreeBlockOffset, int currentFreeBlockSize, int pageNum)
@@ -161,14 +178,22 @@ namespace SQLiteParser
             return BitConverter.ToInt16(result, 0);
         }
 
-        internal ArrayList UnAllocatedSpacesParser()
+        internal Dictionary<string,ArrayList> UnAllocatedSpacesParser()
         {
+            Dictionary<string, ArrayList> res = new Dictionary<string, ArrayList>();
+            
             foreach (string[] item in tableInfo)
             {
+                
+            
                 BTreeTraversal(Convert.ToInt32(item[1]));
+                res.Add(item[0],(ArrayList)UnallocatedSpaceDeletedRecords.Clone());
+                UnallocatedSpaceDeletedRecords.Clear();
+                
             }
-            //BTreeTraversal(3);
-            return UnallocatedSpaceDeletedRecords;
+           
+            
+            return res;
         }
 
         internal ArrayList FreeListPagesParser()//TODO Debug this part
@@ -235,6 +260,7 @@ namespace SQLiteParser
             foreach (int ptr in cellsOffset)
             {
                 if (ptr == 801)
+                    
                     Debug.Write("");
                 readDbRecordFromCell(ptr);
             }

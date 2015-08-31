@@ -14,23 +14,29 @@ namespace SQLiteParser
         private JournalFileParser journalParser;
         private string path;
 
-        public SQLiteInterface()
+        public SQLiteInterface(string path,string dbFileName, string dbCopyFileName)
         {
-            //path = @"F:\SQLite DBs\MMSSMS\Seyed\";
-            //parser = new SQLiteParser(path+"mmssms.db", path+"mmssms_c.db");
-            path = @"F:\SQLite DBs\Browser\MyChrome\";
-            parser = new SQLiteParser(path+"History", path+"History_c");
+            path = @"F:\SQLite DBs\MMSSMS\Seyed\";
+            parser = new SQLiteParser(path+"mmssms.db", path+"mmssms_c.db");
+            //path = @"F:\SQLite DBs\Browser\MyChrome\";
+            //parser = new SQLiteParser(path+"History", path+"History_c");
             
         }
 
-        public void unAllocatedSpases2File()
+        public Dictionary<string, ArrayList> unAllocatedSpases2File()
         {
-            ArrayList result = parser.UnAllocatedSpacesParser();
+            Dictionary<string, ArrayList> result = parser.UnAllocatedSpacesParser();
             using (BinaryWriter writer = new BinaryWriter(File.Open(path+"result.txt", FileMode.Create)))
             {
-                foreach (string[] item in result)
-                    writer.Write("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2] + "\r\n");
+
+                foreach (string tableInfo in result.Keys)
+                {
+                    writer.Write("Table #: " + tableInfo + "\r\n");
+                    foreach (string[] item in (ArrayList)result[tableInfo])
+                        writer.Write("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2] + "\r\n");
+                }
             }
+            return result;
         }
 
         public void readSMS()

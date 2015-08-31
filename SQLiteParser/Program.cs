@@ -14,9 +14,9 @@ namespace SQLiteParser
             //int index = Utils.vaiInt2Int(new byte[] { 0x2B, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }, ref value);
 
             SQLiteInterface sqlite = new SQLiteInterface();
-            sqlite.readSMS();
+            //sqlite.readSMS();
             //sqlite.freeListRetrival();
-            //sqlite.unAllocatedSpases2File();
+            sqlite.unAllocatedSpases2File();
             Console.ReadLine();
         }
     }
