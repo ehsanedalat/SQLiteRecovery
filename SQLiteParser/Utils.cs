@@ -11,7 +11,34 @@ namespace SQLiteParser
 {
     class Utils
     {
-        internal static byte[] ReadingFromFile(string fileName, int offset, int length)
+        internal static void copyFile(string destFilePath, string srcFilePath)
+        {
+            if (File.Exists(destFilePath))
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(destFilePath, FileMode.Open)))
+                {
+                    long offset = 0;
+                    Stream outStream = File.Open(srcFilePath, FileMode.Create);
+                    while (offset != reader.BaseStream.Length)
+                    {
+                        
+                         outStream.Write(reader.ReadBytes(512), 0, 512);
+                         offset = offset + 512;
+                         //reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                         //outStream.Seek(offset, SeekOrigin.Current);
+
+                         
+
+                    }
+                    outStream.Flush();
+                    outStream.Close();
+                    
+                    reader.Close();
+                }
+            }
+        }
+
+        internal static byte[] ReadingFromFile(string fileName, long offset, int length)
         {
             if (File.Exists(fileName))
             {
@@ -23,10 +50,33 @@ namespace SQLiteParser
                         return reader.ReadBytes(length);
 
                     }
+                    
                     reader.Close();
                 }
             }
+            else
+            {
+                throw new FileNotFoundException("There is not such a file in defined path.", fileName);
+            }
             return null;
+        }
+
+        internal static long fileSize(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open)))
+                {
+                    long size = reader.BaseStream.Length;
+                    reader.Close();
+                    return size;
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException("There is not such a file in defined path.", fileName);
+            }
+
         }
 
         internal static int getRootPageNumber(string tableName, string dbPath)
@@ -47,10 +97,12 @@ namespace SQLiteParser
                 return result;
             }
         }
-        internal static ArrayList getAllTableInfo(string dbPath)
+        
+
+        internal static ArrayList getAllTablesInfo(string dbPath)
         {
 
-
+            
             SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
             connBuilder.DataSource = dbPath;
             connBuilder.Version = 3;
@@ -76,7 +128,7 @@ namespace SQLiteParser
         /// <param name="varIntArray">Array with the length of 8(1-9)</param>
         /// <param name="value">call by refrence of return value, primary value is zero</param>
         /// <returns>index of finished varInt type</returns>
-        internal static int vaiInt2Int(byte[] varIntArray, ref long value)
+        internal static int varInt2Int(byte[] varIntArray, ref long value)
         {
             long[] result=new long[9];
             int index = 0;

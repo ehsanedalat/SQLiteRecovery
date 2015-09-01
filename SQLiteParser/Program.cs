@@ -12,11 +12,12 @@ namespace SQLiteParser
         {
             //Int64 value = 0;
             //int index = Utils.vaiInt2Int(new byte[] { 0x2B, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }, ref value);
-
-            SQLiteInterface sqlite = new SQLiteInterface();
+            SQLiteInterface sqlite = new SQLiteInterface(@"F:\SQLite DBs\MMSSMS\Seyed\", "mmssms.db", "mmssms_c.db");
+            //SQLiteInterface sqlite = new SQLiteInterface(@"F:\SQLite DBs\Browser\MyChrome\","History","History_c");
             //sqlite.readSMS();
             //sqlite.freeListRetrival();
-            sqlite.unAllocatedSpases2File();
+            //sqlite.unAllocatedSpases2File();
+            
             Console.ReadLine();
         }
     }

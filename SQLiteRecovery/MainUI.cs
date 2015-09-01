@@ -101,6 +101,7 @@ namespace SQLiteRecovery
             recoverButton.TabIndex = 0;
             recoverButton.Text = "Recover selected Apps data";
             recoverButton.UseVisualStyleBackColor = true;
+
             // 
             // label1
             // 

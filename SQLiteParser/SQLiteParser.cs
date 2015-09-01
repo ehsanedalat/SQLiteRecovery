@@ -19,6 +19,7 @@ namespace SQLiteParser
         private const int internalPageHeaderLength = 12;
         private const int pageSizeOffsetValue = 16;
         private const int pageSizeLengthValue = 2;
+        private const string headerString="SQLite format 3\0";
         private byte[] currentPage;
         private byte[] headerBytesOfSQLiteFile;
         private const int dbHeaderSize = 100;
@@ -34,6 +35,13 @@ namespace SQLiteParser
         {
             this.dbFilePath = dbFilePath;
             this.UnallocatedSpaceDeletedRecords = new ArrayList();
+            
+            init(dbCopyFilePath);
+
+        }
+
+        private void init(string dbCopyFilePath)
+        {
             sqliteTypes = new Dictionary<int, ArrayList>();
             sqliteTypes.Add(0, new ArrayList() { "NULL", "0" });
             sqliteTypes.Add(1, new ArrayList() { "INTEGER_1", "1" });
@@ -47,11 +55,26 @@ namespace SQLiteParser
             sqliteTypes.Add(9, new ArrayList() { "INTEGER_0", "0" });
             sqliteTypes.Add(12, new ArrayList() { "BLOB", "*" });
             sqliteTypes.Add(13, new ArrayList() { "STRING", "*" });
-            
-            pageSize = getPageSize(dbFilePath);
-            tableInfo = Utils.getAllTableInfo(dbCopyFilePath);
-            headerBytesOfSQLiteFile = Utils.ReadingFromFile(dbFilePath, 0, dbHeaderSize);
 
+            headerBytesOfSQLiteFile = Utils.ReadingFromFile(dbFilePath, 0, dbHeaderSize);
+            byte[] currentHeaderString = new byte[16];
+            Array.Copy(headerBytesOfSQLiteFile, currentHeaderString, 16);
+            string cur = System.Text.Encoding.ASCII.GetString(currentHeaderString);
+
+            if (headerString.Equals(cur))
+            {
+                byte[] result = Utils.ReadingFromFile(dbFilePath, pageSizeOffsetValue, pageSizeLengthValue);
+                Array.Reverse(result);
+                pageSize = BitConverter.ToInt16(result, 0);
+                tableInfo = Utils.getAllTablesInfo(dbCopyFilePath);
+            }
+            else
+            {
+                throw new FileNotFoundException("Type of given file is not SQLite!!", dbFilePath);
+            }
+
+            
+            
         }
 
         public ArrayList readSMSs()
@@ -179,12 +202,6 @@ namespace SQLiteParser
                 UnallocatedSpaceDeletedRecords.Add(new string[] { pageNum + "", "FREE BLOCK", data });
         }
 
-        private int getPageSize(string fileName)
-        {
-            byte[] result = Utils.ReadingFromFile(fileName, pageSizeOffsetValue, pageSizeLengthValue);
-            Array.Reverse(result);
-            return BitConverter.ToInt16(result, 0);
-        }
 
         internal Dictionary<string,ArrayList> UnAllocatedSpacesParser()
         {
@@ -192,8 +209,6 @@ namespace SQLiteParser
             
             foreach (string[] item in tableInfo)
             {
-                
-            
                 BTreeTraversal(Convert.ToInt32(item[1]));
                 res.Add(item[0],(ArrayList)UnallocatedSpaceDeletedRecords.Clone());
                 UnallocatedSpaceDeletedRecords.Clear();
@@ -291,7 +306,7 @@ namespace SQLiteParser
                 Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length - ptr);
             }
             long recordSizeValue=0;
-            int recordSizeArrayLength=Utils.vaiInt2Int(buffer, ref recordSizeValue);
+            int recordSizeArrayLength=Utils.varInt2Int(buffer, ref recordSizeValue);
             ptr = ptr + recordSizeArrayLength;
             try
             {
@@ -302,7 +317,7 @@ namespace SQLiteParser
                 Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length-ptr);
             }
             long keyValueField = 0;
-            int keyValueFieldLength = Utils.vaiInt2Int(buffer, ref keyValueField);
+            int keyValueFieldLength = Utils.varInt2Int(buffer, ref keyValueField);
             ptr = ptr + keyValueFieldLength;
 
             long min_embeded_fraction=headerBytesOfSQLiteFile[22];
@@ -328,7 +343,7 @@ namespace SQLiteParser
                     Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length - ptr);
                 }
 
-                int index = Utils.vaiInt2Int(buffer, ref recordHeaderSize);
+                int index = Utils.varInt2Int(buffer, ref recordHeaderSize);
                 ptr = ptr + index;
                 recordHeaderSize = recordHeaderSize - index;
                 
@@ -345,7 +360,7 @@ namespace SQLiteParser
             {
                 long recordHeaderSize = 0;
                 Array.Copy(currentPage, ptr, buffer, 0, 9);
-                int index = Utils.vaiInt2Int(buffer, ref recordHeaderSize);
+                int index = Utils.varInt2Int(buffer, ref recordHeaderSize);
                 ptr = ptr + index;
                 recordHeaderSize = recordHeaderSize - index;
 
@@ -517,12 +532,12 @@ namespace SQLiteParser
                 else
                 {
                     Array.Copy(currentPage, ptr, buffer, 0, nextOverflowPageOffset - ptr);
-                    byte []page=Utils.ReadingFromFile(dbFilePath,((int)nextOverflowPageOffset-1)*pageSize,pageSize);
+                    byte []page=Utils.ReadingFromFile(dbFilePath,(nextOverflowPageOffset-1)*pageSize,pageSize);
                     Array.Copy(page, 5, buffer, nextOverflowPageOffset - ptr, 9 - (nextOverflowPageOffset - ptr));
                 }
             }
             
-            int index = Utils.vaiInt2Int(buffer, ref typeNValue);
+            int index = Utils.varInt2Int(buffer, ref typeNValue);
             ptr = ptr + index;
             headerSize = headerSize - index;
             long colLength = 0;
@@ -565,10 +580,110 @@ namespace SQLiteParser
     internal class JournalFileParser
     {
         private string journalFilePath;
+        private long pageSize;
+        private long sectorSize;
+        private const int journalHeaderLength = 28;
+        private byte[] journalMagic = new byte[] { 0xd9, 0xd5, 0x05, 0xf9, 0x20, 0xa1, 0x63, 0xd7 };
+        private const int checksumLength = 4;
+        private Dictionary<long, ArrayList> backupPages = new Dictionary<long, ArrayList>();
+        private string dbFilePath;
+        private long recordsCount;
+        private long fileSize;
+        private int maxListLength = 1;
+        private string path;
+        private string rollbackedFile;
 
-        internal JournalFileParser(string journalFilePath)
+        internal JournalFileParser(string journalFileName,string dbFileName,string path)
         {
-            this.journalFilePath = journalFilePath;
+            this.journalFilePath = path+journalFileName;
+            this.dbFilePath = path+dbFileName;
+            this.path = path;
+            rollbackedFile = path + "rollBackedFile";
+
+            init();
+
+            fillBackupPages();
+
+            findDeletedRecords();
+        }
+
+        private void findDeletedRecords()
+        {
+            for (int i = 0; i < maxListLength; i++)
+            {
+                List<long>keys= backupPages.Keys.ToList<long>();
+                Stream outStream = File.Open(rollbackedFile, FileMode.Open);
+                for (int j = 0; j < keys.Count; j++)
+                {
+                    long pageNum = keys[j];
+                    ArrayList list = backupPages[pageNum];
+                    if (list.Count != 0)
+                    {
+                        byte[] currentPage = new byte[pageSize];
+                        currentPage = Utils.ReadingFromFile(journalFilePath, (long)list[0], (int)pageSize);
+                        outStream.Seek((pageNum - 1) * pageSize, SeekOrigin.Begin);
+                        outStream.Write(currentPage, 0, currentPage.Length);
+                        list.RemoveAt(0);
+                        backupPages[pageNum] = list;
+                    }
+                }
+                
+                //
+                  
+            }
+
+
+        }
+
+        private void fillBackupPages()
+        {
+            long offset = sectorSize;
+            
+            
+            while (fileSize/sectorSize!=offset/sectorSize)
+            {
+                byte[] pageNumArray=Utils.ReadingFromFile(journalFilePath, offset, 4);
+                long currentPageNumber = BitConverter.ToInt32(new byte[] { pageNumArray[3], pageNumArray[2], pageNumArray[1], pageNumArray[0] }, 0);
+                offset=offset+4;
+                
+                if (backupPages.ContainsKey(currentPageNumber))
+                {
+                    ArrayList list = backupPages[currentPageNumber];
+                    list.Add(offset);
+                    backupPages[currentPageNumber] = list;
+                    if (list.Count > maxListLength)
+                        maxListLength = list.Count;
+                }
+                else
+                {
+                    ArrayList list = new ArrayList();
+                    list.Add(offset);
+                    backupPages.Add(currentPageNumber, list);
+                }
+
+                offset = offset + pageSize + checksumLength;
+            }
+        }
+
+        private void init()
+        {
+            System.IO.File.Copy(dbFilePath, rollbackedFile, true);
+            //Utils.copyFile(dbFilePath, rollbackedFile);
+            
+            fileSize = Utils.fileSize(journalFilePath);
+            byte[] header = Utils.ReadingFromFile(journalFilePath, 0, journalHeaderLength);
+
+            sectorSize = BitConverter.ToInt32(new byte[] { header[23], header[22], header[21], header[20] }, 0);
+            pageSize = BitConverter.ToInt32(new byte[] { header[27], header[26], header[25], header[24] }, 0);
+
+            if (sectorSize == 0)
+                sectorSize = 512;
+            if (pageSize == 0)
+            {
+                byte[] result = Utils.ReadingFromFile(dbFilePath, 16/*pageSizeOffsetValue*/, 2/*pageSizeLengthValue*/);
+                Array.Reverse(result);
+                pageSize = BitConverter.ToInt16(result, 0);
+            }
 
         }
     }
