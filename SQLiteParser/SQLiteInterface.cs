@@ -14,14 +14,14 @@ namespace SQLiteParser
         private JournalFileParser journalParser;
         private string path;
 
-        public SQLiteInterface(string path,string dbFileName, string dbCopyFileName)
+        public SQLiteInterface(string path,string dbFileName)
         {
             this.path = path;
             //path = @"F:\SQLite DBs\MMSSMS\Seyed\";
             //parser = new SQLiteParser(path+"mmssms.db", path+"mmssms_c.db");
             //path = @"F:\SQLite DBs\Browser\MyChrome\";
             //parser = new SQLiteParser(path+"History", path+"History_c");
-            parser = new SQLiteParser(path + dbFileName, path + dbCopyFileName);
+            parser = new SQLiteParser(path + dbFileName); 
             journalParser = new JournalFileParser(dbFileName + "-journal", dbFileName, path);
         }
 

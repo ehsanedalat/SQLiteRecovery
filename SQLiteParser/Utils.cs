@@ -6,11 +6,31 @@ using System.IO;
 using System.Data;
 using System.Data.SQLite;
 using System.Collections;
+using System.Diagnostics;
 
 namespace SQLiteParser
 {
     class Utils
     {
+        private static SQLiteConnection connection;
+        private static string sqldiffToolName = "sqldiff.exe";
+        private static string ToolFolder = @"..\Tools";
+
+        internal static void buildDBConnection(string dbPath)
+        {
+            SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
+            connBuilder.DataSource = dbPath;
+            connBuilder.Version = 3;
+            connection = new SQLiteConnection(connBuilder.ToString());
+            connection.Open();
+            
+        }
+
+        internal static void closeDBConnection()
+        {
+            connection.Close();
+        }
+
         internal static void copyFile(string destFilePath, string srcFilePath)
         {
             if (File.Exists(destFilePath))
@@ -79,36 +99,28 @@ namespace SQLiteParser
 
         }
 
-        internal static int getRootPageNumber(string tableName, string dbPath)
+        internal static int getRootPageNumber(string tableName)
         {
-
-
-            SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
-            connBuilder.DataSource = dbPath;
-            connBuilder.Version = 3;
-            using (SQLiteConnection connection = new SQLiteConnection(connBuilder.ToString()))
+            if (connection != null)
             {
-                connection.Open();
                 SQLiteCommand com = new SQLiteCommand("select rootpage from sqlite_master where type='table' and tbl_name='" + tableName + "';", connection);
                 int result = Convert.ToInt32(com.ExecuteScalar());
                 connection.Close();
                 connection.Dispose();
-                
                 return result;
             }
-        }
-        
-
-        internal static ArrayList getAllTablesInfo(string dbPath)
-        {
-
-            
-            SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
-            connBuilder.DataSource = dbPath;
-            connBuilder.Version = 3;
-            using (SQLiteConnection connection = new SQLiteConnection(connBuilder.ToString()))
+            else
             {
-                connection.Open();
+                throw new EntryPointNotFoundException("Connection should be stablished!!");
+            }
+            
+        }
+
+
+        internal static ArrayList getAllTablesInfo()
+        {
+            if (connection != null)
+            {
                 SQLiteCommand com = new SQLiteCommand("select tbl_name,rootpage from sqlite_master where type='table';", connection);
                 SQLiteDataReader reader = com.ExecuteReader();
                 ArrayList result = new ArrayList();
@@ -116,12 +128,26 @@ namespace SQLiteParser
                 {
                     result.Add(new string[] { (string)reader["tbl_name"], Convert.ToString(reader["rootpage"]) });
                 }
-                connection.Close();
-                connection.Dispose();
-
                 return result;
             }
+            else
+            {
+                throw new EntryPointNotFoundException("Connection should be stablished!!");
+            }
         }
+
+            /*foreach (string[] item in tableList)
+            {
+                var cmd = new SQLiteCommand("select * from " + item[0], connection);
+                var dr = cmd.ExecuteReader();
+                for (var i = 0; i < dr.FieldCount; i++)
+                {
+                    Console.WriteLine(dr.GetName(i));
+                }
+
+            }*/
+        
+
         /// <summary>
         /// 
         /// </summary>
@@ -177,6 +203,83 @@ namespace SQLiteParser
             }
             index++;
             return index;
+        }
+
+        internal static void getDataBaseDifferences(string rolledBackDB, string currentDB,ref Dictionary<string,ArrayList> result)
+        {
+            ArrayList tableInfo=getAllTablesInfo();
+
+            Process process = buildConnection2sqldiff();
+            foreach (string[] item in tableInfo)
+            {
+            
+                if (!result.ContainsKey(item[0]))
+                {
+                    result.Add(item[0], outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB + "\"", process)));   
+                }
+                else
+                {
+                    result[item[0]].Add(outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB+"\"", process)));
+                }
+                
+            }
+            process.Close();
+
+        }
+
+        private static Process runCommand2cmd(String command, Process process)
+        {
+            
+
+            //process.StartInfo.Arguments = path.ElementAt(0)+": &";
+            //process.StartInfo.Arguments += " cd "+path.Substring(3)+" &";
+            process.StartInfo.Arguments = command;
+
+            process.Start();
+            return process;
+        }
+
+        private static Process buildConnection2sqldiff()
+        {
+            string path = ToolFolder;
+            path = Path.GetFullPath(path);
+            Process process = new Process();
+            process.StartInfo.WorkingDirectory = path;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.FileName =path+@"\sqldiff.exe";
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+            return process;
+        }
+
+        private static ArrayList outputQueries(Process process)
+        {
+            StreamReader outputWriter = process.StandardOutput;
+            String responce = outputWriter.ReadToEnd();
+            
+            ArrayList finalList = new ArrayList();
+
+            Debug.WriteLine(getErrors(process));
+            if (!String.IsNullOrEmpty(responce))
+            {
+                string[] queries = responce.Split(new string[] { ";\r\n" },StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string query in queries)
+                {
+                    if (!query.ToLower().Contains("INSERT".ToLower()))
+                        finalList.Add(query + ";");
+                }
+            }
+
+            return finalList;
+        }
+
+        private static string getErrors(Process process)
+        {
+            return process.StandardError.ReadToEnd();
         }
     }
 }

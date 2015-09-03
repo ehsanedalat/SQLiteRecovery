@@ -31,16 +31,16 @@ namespace SQLiteParser
 
         private ArrayList records = new ArrayList();//TODO change dataset!
 
-        internal SQLiteParser(string dbFilePath, string dbCopyFilePath)
+        internal SQLiteParser(string dbFilePath)
         {
             this.dbFilePath = dbFilePath;
             this.UnallocatedSpaceDeletedRecords = new ArrayList();
             
-            init(dbCopyFilePath);
+            init();
 
         }
 
-        private void init(string dbCopyFilePath)
+        private void init()
         {
             sqliteTypes = new Dictionary<int, ArrayList>();
             sqliteTypes.Add(0, new ArrayList() { "NULL", "0" });
@@ -66,7 +66,12 @@ namespace SQLiteParser
                 byte[] result = Utils.ReadingFromFile(dbFilePath, pageSizeOffsetValue, pageSizeLengthValue);
                 Array.Reverse(result);
                 pageSize = BitConverter.ToInt16(result, 0);
-                tableInfo = Utils.getAllTablesInfo(dbCopyFilePath);
+
+                string dbCopyFilePath = dbFilePath + "_c";
+                
+                System.IO.File.Copy(dbFilePath, dbCopyFilePath,true);
+                Utils.buildDBConnection(dbCopyFilePath);
+                tableInfo = Utils.getAllTablesInfo();
             }
             else
             {
@@ -589,7 +594,7 @@ namespace SQLiteParser
         private string dbFilePath;
         private long recordsCount;
         private long fileSize;
-        private int maxListLength = 1;
+        private int maxListLength = 0;
         private string path;
         private string rollbackedFile;
 
@@ -598,7 +603,7 @@ namespace SQLiteParser
             this.journalFilePath = path+journalFileName;
             this.dbFilePath = path+dbFileName;
             this.path = path;
-            rollbackedFile = path + "rollBackedFile";
+            rollbackedFile = path + @"rollbackedDBs\" + "rollBackedFile";
 
             init();
 
@@ -609,10 +614,11 @@ namespace SQLiteParser
 
         private void findDeletedRecords()
         {
+            List<long> keys = backupPages.Keys.ToList<long>();
             for (int i = 0; i < maxListLength; i++)
             {
-                List<long>keys= backupPages.Keys.ToList<long>();
-                Stream outStream = File.Open(rollbackedFile, FileMode.Open);
+                System.IO.File.Copy(dbFilePath, rollbackedFile+"_"+i, true);
+                Stream outStream = File.Open(rollbackedFile+"_"+i, FileMode.Open);
                 for (int j = 0; j < keys.Count; j++)
                 {
                     long pageNum = keys[j];
@@ -627,12 +633,17 @@ namespace SQLiteParser
                         backupPages[pageNum] = list;
                     }
                 }
-                
-                //
-                  
+                outStream.Close();  
             }
 
+            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
+            for(int i=0;i<maxListLength;i++){
+                Utils.getDataBaseDifferences(rollbackedFile + "_" + i, dbFilePath,ref result);
+            }
 
+            if (true)
+                Debug.Write("");
+            
         }
 
         private void fillBackupPages()
@@ -642,34 +653,35 @@ namespace SQLiteParser
             
             while (fileSize/sectorSize!=offset/sectorSize)
             {
-                byte[] pageNumArray=Utils.ReadingFromFile(journalFilePath, offset, 4);
+                byte[] pageNumArray=Utils.ReadingFromFile(journalFilePath, offset, 5);
+                int pageType=pageNumArray[4];
                 long currentPageNumber = BitConverter.ToInt32(new byte[] { pageNumArray[3], pageNumArray[2], pageNumArray[1], pageNumArray[0] }, 0);
                 offset=offset+4;
-                
-                if (backupPages.ContainsKey(currentPageNumber))
-                {
-                    ArrayList list = backupPages[currentPageNumber];
-                    list.Add(offset);
-                    backupPages[currentPageNumber] = list;
-                    if (list.Count > maxListLength)
-                        maxListLength = list.Count;
-                }
-                else
-                {
-                    ArrayList list = new ArrayList();
-                    list.Add(offset);
-                    backupPages.Add(currentPageNumber, list);
-                }
 
+                if (pageType == 13)
+                {
+                    if (backupPages.ContainsKey(currentPageNumber))
+                    {
+                        ArrayList list = backupPages[currentPageNumber];
+                        list.Add(offset);
+                        backupPages[currentPageNumber] = list;
+                        if (list.Count > maxListLength)
+                            maxListLength = list.Count;
+                    }
+                    else
+                    {
+                        ArrayList list = new ArrayList();
+                        list.Add(offset);
+                        backupPages.Add(currentPageNumber, list);
+                    }
+                }
                 offset = offset + pageSize + checksumLength;
             }
+            
         }
 
         private void init()
-        {
-            System.IO.File.Copy(dbFilePath, rollbackedFile, true);
-            //Utils.copyFile(dbFilePath, rollbackedFile);
-            
+        {   
             fileSize = Utils.fileSize(journalFilePath);
             byte[] header = Utils.ReadingFromFile(journalFilePath, 0, journalHeaderLength);
 
