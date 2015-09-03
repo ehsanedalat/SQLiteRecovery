@@ -17,6 +17,7 @@ namespace SQLiteParser
             //sqlite.readSMS();
             //sqlite.freeListRetrival();
             sqlite.unAllocatedSpases2File();
+            sqlite.journalRecovery();
             
             Console.ReadLine();
         }

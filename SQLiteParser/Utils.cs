@@ -12,24 +12,25 @@ namespace SQLiteParser
 {
     class Utils
     {
-        private static SQLiteConnection connection;
         private static string sqldiffToolName = "sqldiff.exe";
         private static string ToolFolder = @"..\Tools";
 
-        internal static void buildDBConnection(string dbPath)
+        internal static SQLiteConnection buildDBConnection(string dbPath)
         {
+            SQLiteConnection connection;
             SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
             connBuilder.DataSource = dbPath;
             connBuilder.Version = 3;
             connection = new SQLiteConnection(connBuilder.ToString());
             connection.Open();
-            
+
+            return connection;
         }
 
-        internal static void closeDBConnection()
+        /*internal static void closeDBConnection()
         {
             connection.Close();
-        }
+        }*/
 
         internal static void copyFile(string destFilePath, string srcFilePath)
         {
@@ -99,54 +100,33 @@ namespace SQLiteParser
 
         }
 
-        internal static int getRootPageNumber(string tableName)
+        internal static int getRootPageNumber(string tableName, string dbName)
         {
-            if (connection != null)
-            {
-                SQLiteCommand com = new SQLiteCommand("select rootpage from sqlite_master where type='table' and tbl_name='" + tableName + "';", connection);
-                int result = Convert.ToInt32(com.ExecuteScalar());
-                connection.Close();
-                connection.Dispose();
-                return result;
-            }
-            else
-            {
-                throw new EntryPointNotFoundException("Connection should be stablished!!");
-            }
-            
+            SQLiteConnection connection = buildDBConnection(dbName);
+            SQLiteCommand com = new SQLiteCommand("select rootpage from sqlite_master where type='table' and tbl_name='" + tableName + "';", connection);
+            int result = Convert.ToInt32(com.ExecuteScalar());
+            connection.Close();
+            connection.Dispose();
+
+            return result;
         }
 
 
-        internal static ArrayList getAllTablesInfo()
+        internal static ArrayList getAllTablesInfo(string dbName)
         {
-            if (connection != null)
+            SQLiteConnection connection = buildDBConnection(dbName);
+
+            SQLiteCommand com = new SQLiteCommand("select tbl_name,rootpage from sqlite_master where type='table';", connection);
+            SQLiteDataReader reader = com.ExecuteReader();
+            ArrayList result = new ArrayList();
+            while (reader.Read())
             {
-                SQLiteCommand com = new SQLiteCommand("select tbl_name,rootpage from sqlite_master where type='table';", connection);
-                SQLiteDataReader reader = com.ExecuteReader();
-                ArrayList result = new ArrayList();
-                while (reader.Read())
-                {
-                    result.Add(new string[] { (string)reader["tbl_name"], Convert.ToString(reader["rootpage"]) });
-                }
-                return result;
+                result.Add(new string[] { (string)reader["tbl_name"], Convert.ToString(reader["rootpage"]) });
             }
-            else
-            {
-                throw new EntryPointNotFoundException("Connection should be stablished!!");
-            }
+            connection.Close();
+
+            return result;
         }
-
-            /*foreach (string[] item in tableList)
-            {
-                var cmd = new SQLiteCommand("select * from " + item[0], connection);
-                var dr = cmd.ExecuteReader();
-                for (var i = 0; i < dr.FieldCount; i++)
-                {
-                    Console.WriteLine(dr.GetName(i));
-                }
-
-            }*/
-        
 
         /// <summary>
         /// 
@@ -207,7 +187,7 @@ namespace SQLiteParser
 
         internal static void getDataBaseDifferences(string rolledBackDB, string currentDB,ref Dictionary<string,Dictionary<string, ArrayList>> result)
         {
-            ArrayList tableInfo=getAllTablesInfo();
+            ArrayList tableInfo=getAllTablesInfo(rolledBackDB);
 
             Process process = buildConnection2sqldiff();
             foreach (string[] item in tableInfo)
@@ -241,6 +221,57 @@ namespace SQLiteParser
                 
             }
             process.Close();
+
+        }
+
+        internal static Dictionary<string,ArrayList> getRecords(Dictionary<string,Dictionary<string, ArrayList>> queries)
+        {
+            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
+
+            foreach (string tableName in queries.Keys)
+            {
+                ArrayList records = new ArrayList();
+
+                string[] filePathes = queries[tableName].Keys.ToArray();
+                int index=0;
+                SQLiteConnection connection = buildDBConnection(filePathes[index]);
+
+                var cmd = new SQLiteCommand("select * from " + tableName, connection);
+                var dr = cmd.ExecuteReader();
+                ArrayList colNames = new ArrayList();
+                for (var i = 0; i < dr.FieldCount; i++)
+                {
+                    colNames.Add(dr.GetName(i));
+                }
+                records.Add(colNames);
+
+
+                do
+                {
+                    ArrayList mQuery = queries[tableName][filePathes[index]];
+                    foreach (string query in mQuery)
+                    {
+                        SQLiteCommand com = new SQLiteCommand(query, connection);
+                        SQLiteDataReader reader = com.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            ArrayList item = new ArrayList();
+                            foreach (string col in colNames)
+                                item.Add(reader[col]);
+                            records.Add(item);
+                        }
+                    }
+                    connection.Close();
+                    
+                    index++;
+                    if (index < filePathes.Length)
+                        connection = buildDBConnection(filePathes[index]);
+                } while (index < filePathes.Length);
+                if(records.Count>1)
+                    result.Add(tableName, records);
+            }
+            return result;
 
         }
 

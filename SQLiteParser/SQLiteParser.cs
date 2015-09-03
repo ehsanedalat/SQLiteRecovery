@@ -70,8 +70,8 @@ namespace SQLiteParser
                 string dbCopyFilePath = dbFilePath + "_c";
                 
                 System.IO.File.Copy(dbFilePath, dbCopyFilePath,true);
-                Utils.buildDBConnection(dbCopyFilePath);
-                tableInfo = Utils.getAllTablesInfo();
+                
+                tableInfo = Utils.getAllTablesInfo(dbCopyFilePath);
             }
             else
             {
@@ -597,6 +597,7 @@ namespace SQLiteParser
         private int maxListLength = 0;
         private string path;
         private string rollbackedFile;
+        private Dictionary<string, ArrayList> records;
 
         internal JournalFileParser(string journalFileName,string dbFileName,string path)
         {
@@ -609,10 +610,15 @@ namespace SQLiteParser
 
             fillBackupPages();
 
-            findDeletedRecords();
+            records = findDeletedRecords();
         }
 
-        private void findDeletedRecords()
+        internal Dictionary<string, ArrayList> getDeletedRecords()
+        {
+            return records;
+        }
+
+        private Dictionary<string, ArrayList> findDeletedRecords()
         {
             List<long> keys = backupPages.Keys.ToList<long>();
             for (int i = 0; i < maxListLength; i++)
@@ -641,9 +647,7 @@ namespace SQLiteParser
             for(int i=0;i<maxListLength;i++){
                 Utils.getDataBaseDifferences(rollbackedFile + "_" + i, dbFilePath,ref result);
             }
-
-            if (true)
-                Debug.Write("");
+            return Utils.getRecords(result);
             
         }
 

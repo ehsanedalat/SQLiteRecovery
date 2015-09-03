@@ -25,7 +25,10 @@ namespace SQLiteParser
             journalParser = new JournalFileParser(dbFileName + "-journal", dbFileName, path);
         }
 
-        
+        public Dictionary<string, ArrayList> journalRecovery()
+        {
+            return journalParser.getDeletedRecords();
+        }
 
         public Dictionary<string, ArrayList> unAllocatedSpases2File()
         {
