@@ -633,10 +633,11 @@ namespace SQLiteParser
                         backupPages[pageNum] = list;
                     }
                 }
+                outStream.Flush();
                 outStream.Close();  
             }
 
-            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
+            Dictionary<string, Dictionary<string, ArrayList>> result = new Dictionary<string, Dictionary<string, ArrayList>>();
             for(int i=0;i<maxListLength;i++){
                 Utils.getDataBaseDifferences(rollbackedFile + "_" + i, dbFilePath,ref result);
             }

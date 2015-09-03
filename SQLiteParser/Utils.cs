@@ -205,21 +205,38 @@ namespace SQLiteParser
             return index;
         }
 
-        internal static void getDataBaseDifferences(string rolledBackDB, string currentDB,ref Dictionary<string,ArrayList> result)
+        internal static void getDataBaseDifferences(string rolledBackDB, string currentDB,ref Dictionary<string,Dictionary<string, ArrayList>> result)
         {
             ArrayList tableInfo=getAllTablesInfo();
 
             Process process = buildConnection2sqldiff();
             foreach (string[] item in tableInfo)
             {
-            
+
                 if (!result.ContainsKey(item[0]))
                 {
-                    result.Add(item[0], outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB + "\"", process)));   
+                    ArrayList list = outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB + "\"", process));
+                    if (list.Count != 0)
+                    {
+                        Dictionary<string, ArrayList> res = new Dictionary<string, ArrayList>();
+                        res.Add(rolledBackDB, list);
+                        result.Add(item[0], res);
+                    }
                 }
                 else
                 {
-                    result[item[0]].Add(outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB+"\"", process)));
+                    Dictionary<string, ArrayList> list = result[item[0]];
+                    ArrayList newList = outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB + "\"", process));
+                    foreach(string key in list.Keys)
+                        foreach (string query in newList)
+                        {
+                            if (list[key].Contains(query))
+                                newList.Remove(query);
+                        }
+                    if (newList.Count != 0)
+                    {
+                        result[item[0]].Add(rolledBackDB,newList);
+                    }
                 }
                 
             }
@@ -269,8 +286,22 @@ namespace SQLiteParser
 
                 foreach (string query in queries)
                 {
-                    if (!query.ToLower().Contains("INSERT".ToLower()))
-                        finalList.Add(query + ";");
+                    if (!query.ToLower().Contains("INSERT INTO".ToLower()))
+                    {
+                        string res = query;
+                        if (query.ToLower().Contains("DELETE FROM".ToLower()))
+                        {
+                            res = query.Replace("DELETE","SELECT * ");
+                        }
+                        else if (query.ToLower().Contains("UPDATE".ToLower()))
+                        {
+                            res = query.Replace("UPDATE","SELECT * FROM");
+                            int f=res.IndexOf("SET");
+                            int l=res.IndexOf("WHERE");
+                            res=res.Remove(f,l-f);
+                        }
+                        finalList.Add(res + ";");
+                    }
                 }
             }
 
