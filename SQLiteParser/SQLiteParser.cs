@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Data.SQLite;
 
 namespace SQLiteParser
 {
@@ -170,8 +171,6 @@ namespace SQLiteParser
         {
             string data = Encoding.UTF8.GetString(currentPage, unallocatedSpaceOffset, cellsOffset - unallocatedSpaceOffset);
 
-            //var reg = new Regex(@"^[\u0600-\u06FF\uFB8A\u067E\u0686\u06AF\u0021-\u007E]+$");
-            //reg.Matches(data)
             data = data.Replace("\0", "");
             foreach (char c in data)
             {
@@ -294,7 +293,10 @@ namespace SQLiteParser
             }
 
         }
-
+        /// <summary>
+        /// exteract db records from given cell offset.
+        /// </summary>
+        /// <param name="ptr"></param>
         private void readDbRecordFromCell(int ptr)
         {
             if (ptr == 247)
@@ -599,12 +601,12 @@ namespace SQLiteParser
         private string rollbackedFile;
         private Dictionary<string, ArrayList> records;
 
-        internal JournalFileParser(string journalFileName,string dbFileName,string path)
+        internal JournalFileParser(string journalFilePath,string dbFilePath,string workSpacePath)
         {
-            this.journalFilePath = path+journalFileName;
-            this.dbFilePath = path+dbFileName;
-            this.path = path;
-            rollbackedFile = path + @"rollbackedDBs\" + "rollBackedFile";
+            this.journalFilePath = journalFilePath;
+            this.dbFilePath = dbFilePath;
+            this.path = workSpacePath;
+            rollbackedFile = workSpacePath + @"rollbackedDBs\" + "rollBackedFile";
 
             init();
 
@@ -617,7 +619,10 @@ namespace SQLiteParser
         {
             return records;
         }
-
+        /// <summary>
+        /// Build old db from journal pages and then find the differences of old db with current one.
+        /// </summary>
+        /// <returns>records whitch is omited or updated from old db classified by table name.</returns>
         private Dictionary<string, ArrayList> findDeletedRecords()
         {
             List<long> keys = backupPages.Keys.ToList<long>();
@@ -647,10 +652,67 @@ namespace SQLiteParser
             for(int i=0;i<maxListLength;i++){
                 Utils.getDataBaseDifferences(rollbackedFile + "_" + i, dbFilePath,ref result);
             }
-            return Utils.getRecords(result);
+            return getRecords(result);
             
         }
+        /// <summary>
+        /// retrieved records from old dbs with given queries.
+        /// </summary>
+        /// <param name="queries">contaion queries catagorized by table name at first and then by db path.</param>
+        /// <returns>records that classified by table names.</returns>
+        private static Dictionary<string, ArrayList> getRecords(Dictionary<string, Dictionary<string, ArrayList>> queries)
+        {
+            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
 
+            foreach (string tableName in queries.Keys)
+            {
+                ArrayList records = new ArrayList();
+
+                string[] filePathes = queries[tableName].Keys.ToArray();
+                int index = 0;
+                SQLiteConnection connection = Utils.buildDBConnection(filePathes[index]);
+
+                var cmd = new SQLiteCommand("select * from " + tableName, connection);
+                var dr = cmd.ExecuteReader();
+                ArrayList colNames = new ArrayList();
+                for (var i = 0; i < dr.FieldCount; i++)
+                {
+                    colNames.Add(dr.GetName(i));
+                }
+                records.Add(colNames);
+
+
+                do
+                {
+                    ArrayList mQuery = queries[tableName][filePathes[index]];
+                    foreach (string query in mQuery)
+                    {
+                        SQLiteCommand com = new SQLiteCommand(query, connection);
+                        SQLiteDataReader reader = com.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            ArrayList item = new ArrayList();
+                            foreach (string col in colNames)
+                                item.Add(reader[col]);
+                            records.Add(item);
+                        }
+                    }
+                    connection.Close();
+
+                    index++;
+                    if (index < filePathes.Length)
+                        connection = Utils.buildDBConnection(filePathes[index]);
+                } while (index < filePathes.Length);
+                if (records.Count > 1)
+                    result.Add(tableName, records);
+            }
+            return result;
+
+        }
+        /// <summary>
+        /// find offset of leaf pages in journal file.
+        /// </summary>
         private void fillBackupPages()
         {
             long offset = sectorSize;

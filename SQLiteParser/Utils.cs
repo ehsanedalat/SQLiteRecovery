@@ -27,11 +27,6 @@ namespace SQLiteParser
             return connection;
         }
 
-        /*internal static void closeDBConnection()
-        {
-            connection.Close();
-        }*/
-
         internal static void copyFile(string destFilePath, string srcFilePath)
         {
             if (File.Exists(destFilePath))
@@ -111,7 +106,11 @@ namespace SQLiteParser
             return result;
         }
 
-
+        /// <summary>
+        /// get name and root page number of all tables in input db.
+        /// </summary>
+        /// <param name="dbName"></param>
+        /// <returns>ArrayList of string array with 2 item. first one is table name and second one is root page number.</returns>
         internal static ArrayList getAllTablesInfo(string dbName)
         {
             SQLiteConnection connection = buildDBConnection(dbName);
@@ -166,7 +165,7 @@ namespace SQLiteParser
                 {
                     long x = ((long)result[index - i] << ((i) * 8 - i));
                     value = value | x;
-                    //Console.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
+                    Debug.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
                 }
             else
             {
@@ -178,13 +177,18 @@ namespace SQLiteParser
                     else
                         x = (long)result[index - i];
                     value = value | x;
-                    //Console.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
+                    Debug.WriteLine("index-i->: " + (index - i) + " | x:-> " + Convert.ToString(x, 2) + " | value:-> " + Convert.ToString(value, 2) + "value length:->" + Convert.ToString(value, 2).Length);
                 }
             }
             index++;
             return index;
         }
-
+        /// <summary>
+        /// with sqldiff.exe tool find the deleted or updated records.
+        /// </summary>
+        /// <param name="rolledBackDB">old db</param>
+        /// <param name="currentDB"></param>
+        /// <param name="result">result contains queries which can get deleted or updated records from old db.</param>
         internal static void getDataBaseDifferences(string rolledBackDB, string currentDB,ref Dictionary<string,Dictionary<string, ArrayList>> result)
         {
             ArrayList tableInfo=getAllTablesInfo(rolledBackDB);
@@ -224,63 +228,8 @@ namespace SQLiteParser
 
         }
 
-        internal static Dictionary<string,ArrayList> getRecords(Dictionary<string,Dictionary<string, ArrayList>> queries)
-        {
-            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
-
-            foreach (string tableName in queries.Keys)
-            {
-                ArrayList records = new ArrayList();
-
-                string[] filePathes = queries[tableName].Keys.ToArray();
-                int index=0;
-                SQLiteConnection connection = buildDBConnection(filePathes[index]);
-
-                var cmd = new SQLiteCommand("select * from " + tableName, connection);
-                var dr = cmd.ExecuteReader();
-                ArrayList colNames = new ArrayList();
-                for (var i = 0; i < dr.FieldCount; i++)
-                {
-                    colNames.Add(dr.GetName(i));
-                }
-                records.Add(colNames);
-
-
-                do
-                {
-                    ArrayList mQuery = queries[tableName][filePathes[index]];
-                    foreach (string query in mQuery)
-                    {
-                        SQLiteCommand com = new SQLiteCommand(query, connection);
-                        SQLiteDataReader reader = com.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            ArrayList item = new ArrayList();
-                            foreach (string col in colNames)
-                                item.Add(reader[col]);
-                            records.Add(item);
-                        }
-                    }
-                    connection.Close();
-                    
-                    index++;
-                    if (index < filePathes.Length)
-                        connection = buildDBConnection(filePathes[index]);
-                } while (index < filePathes.Length);
-                if(records.Count>1)
-                    result.Add(tableName, records);
-            }
-            return result;
-
-        }
-
         private static Process runCommand2cmd(String command, Process process)
         {
-            
-
-            //process.StartInfo.Arguments = path.ElementAt(0)+": &";
-            //process.StartInfo.Arguments += " cd "+path.Substring(3)+" &";
             process.StartInfo.Arguments = command;
 
             process.Start();
@@ -342,6 +291,56 @@ namespace SQLiteParser
         private static string getErrors(Process process)
         {
             return process.StandardError.ReadToEnd();
+        }
+
+        internal static DataTable getAllTableRecords(string dbName, string tableName, string filter)
+        {
+            SQLiteConnection connection = buildDBConnection(dbName);
+
+            var cmd = new SQLiteCommand("select * from " + tableName, connection);
+            var dr = cmd.ExecuteReader();
+            ArrayList colNames = new ArrayList();
+            for (var i = 0; i < dr.FieldCount; i++)
+            {
+                colNames.Add(dr.GetName(i));
+            }
+            string query = "SELECT * FROM "+tableName+";";
+
+            if (!String.IsNullOrEmpty(filter))
+            {
+                query = "SELECT * FROM " + tableName + " WHERE ";
+
+                foreach (string col in colNames)
+                {
+                    query = query + col + " LIKE '%" + filter + "%' OR ";
+                }
+
+                query = query + " 0 ;";
+            }
+            SQLiteCommand com = new SQLiteCommand(query, connection);
+            SQLiteDataAdapter da = new SQLiteDataAdapter(com);
+            DataSet dataSet = new DataSet();
+            da.Fill(dataSet);
+            return dataSet.Tables[0];
+            /*SQLiteDataReader reader = com.ExecuteReader();
+
+            Console.WriteLine("sms");
+            foreach (string col in colNames)
+            {
+                Debug.Write(col + " | ");
+            }
+            Debug.WriteLine("\r\n");
+            while (reader.Read())
+            {
+                foreach (string col in colNames)
+                {
+                    Debug.Write(reader[col] + " | ");
+                }
+                Debug.WriteLine("\r\n");
+            }
+            connection.Close();
+
+            return null;*/
         }
     }
 }
