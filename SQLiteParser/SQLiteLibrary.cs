@@ -9,7 +9,7 @@ using System.Data;
 
 namespace SQLiteParser
 {
-    class SQLiteLibrary
+    public class SQLiteLibrary
     {
         private SQLiteParser parser;
         private JournalFileParser journalParser;

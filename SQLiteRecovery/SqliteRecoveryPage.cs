@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using SQLiteParser;
 
 namespace SQLiteRecovery
 {
@@ -14,7 +15,7 @@ namespace SQLiteRecovery
         private List<CheckBox> checkedBoxes;
         private Form MainPage;
 
-        public SqliteRecoveryPage(List<CheckBox> checkedBoxes, Form MainPage)
+        internal SqliteRecoveryPage(List<CheckBox> checkedBoxes, Form MainPage)
         {
             InitializeComponent();
 
@@ -24,11 +25,29 @@ namespace SQLiteRecovery
             BuildingAppsRecoverdDataTabs();
         }
 
+        internal SqliteRecoveryPage(Form MainPage, string dbFilePath, string journalFilePath)
+        {
+            InitializeComponent();
+
+            this.MainPage = MainPage;
+
+            BuildingRecoverDataTabs(dbFilePath, journalFilePath);
+
+        }
+
+        private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath)
+        {
+            recoverDataFromDB(dbFilePath, journalFilePath);
+            TabPage tab = BuildNewTabForDBData("DB NAME");
+            this.tabsControl.Controls.Add(tab);
+        }
+
         private void BuildingAppsRecoverdDataTabs()
         {
             foreach (CheckBox checkbox in checkedBoxes)
             {
-                recoverDataFromDB(checkbox.Name);
+                //TODO FILE AND JOURNAL PATH
+                //recoverDataFromDB(checkbox.Name);
                 TabPage tab = BuildNewTabForDBData(checkbox.Name);
                 this.tabsControl.Controls.Add(tab);
             }
@@ -47,9 +66,11 @@ namespace SQLiteRecovery
             return tabPage;
         }
 
-        private void recoverDataFromDB(string dbName)
+        private void recoverDataFromDB(string dbFilePath, string journalPath)
         {
-            throw new NotImplementedException();
+            //TODO RECOVER DATA
+            SQLiteLibrary sqlite = new SQLiteLibrary(@"..\workspace", dbFilePath);   
+            
         }
 
         private void back_button_Click(object sender, EventArgs e)

@@ -220,6 +220,5 @@ namespace PluginGenerator
             parent.Show();
         }
 
-        
     }
 }

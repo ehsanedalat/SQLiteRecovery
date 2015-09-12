@@ -18,6 +18,8 @@ namespace SQLiteRecovery
         private ICollection<DeviceRecoveryPluginInterface> plugins;
         private Dictionary<string, Dictionary<string, string>> tabs;
         private SQLUtils utils;
+        private string DBFilePath;
+        private string journalFilePath;
         public string updatedTab { get; set; }
         /// <summary>
         /// constructor
@@ -75,7 +77,7 @@ namespace SQLiteRecovery
             TabPage tabPage = new TabPage();
             FlowLayoutPanel appsPannel = new FlowLayoutPanel();
             //
-            //tabPage
+            //tabPage 
             //
             tabPage.Controls.Add(recoverButton);
             tabPage.Controls.Add(groupBox2);
@@ -301,6 +303,39 @@ namespace SQLiteRecovery
             MainFormPluginGenerator generatePluginUI = new MainFormPluginGenerator(this, OSTabsControl.SelectedTab.Name);
             generatePluginUI.Show();
             this.Hide();
+        }
+
+        private void DBPathButton_Click(object sender, EventArgs e)
+        {
+            if (DBOpenFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                DBFilePath = DBOpenFileDialog.FileName;
+                DBFileTextBox.Text = DBFilePath;
+            }
+        }
+
+        private void journalPathButton_Click(object sender, EventArgs e)
+        {
+            if (journalOpenFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                journalFilePath = journalOpenFileDialog.FileName;
+                DBFileTextBox.Text = journalFilePath;
+            }
+        }
+
+        private void recoverButton_Click(object sender, EventArgs e)
+        {
+            if (!String.IsNullOrEmpty(DBFilePath))
+            {
+                this.Hide();
+                SqliteRecoveryPage recoveryPage = new SqliteRecoveryPage(this, DBFilePath, journalFilePath);
+                recoveryPage.Show();
+            }
+            else
+            {
+                ErrorProvider error = new ErrorProvider();
+                error.SetError(DBFileTextBox,"Empty Box !!");
+            }
         }
        
     }

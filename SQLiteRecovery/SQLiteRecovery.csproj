@@ -160,6 +160,10 @@
       <Project>{FB73A721-5355-414C-94B8-4B1A4E7D5D6D}</Project>
       <Name>PluginLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SQLiteParser\SQLiteParser.csproj">
+      <Project>{AF5A36C7-8DA7-4A6E-B274-211D2DEFCCE0}</Project>
+      <Name>SQLiteParser</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
