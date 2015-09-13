@@ -27,6 +27,17 @@ namespace SQLiteParser
             return connection;
         }
 
+        internal static ArrayList getAllTableNames(string dbFilePath)
+        {
+            ArrayList list = getAllTablesInfo(dbFilePath);
+            ArrayList result = new ArrayList();
+            foreach (string[] item in list)
+            {
+                result.Add(item[0]);
+            }
+            return result;
+        }
+
         internal static void copyFile(string destFilePath, string srcFilePath)
         {
             if (File.Exists(destFilePath))
@@ -68,13 +79,13 @@ namespace SQLiteParser
                     }
                     
                     reader.Close();
+                    return null;
                 }
             }
             else
             {
                 throw new FileNotFoundException("There is not such a file in defined path.", fileName);
             }
-            return null;
         }
 
         internal static long fileSize(string fileName)
@@ -111,9 +122,9 @@ namespace SQLiteParser
         /// </summary>
         /// <param name="dbName"></param>
         /// <returns>ArrayList of string array with 2 item. first one is table name and second one is root page number.</returns>
-        internal static ArrayList getAllTablesInfo(string dbName)
+        internal static ArrayList getAllTablesInfo(string dbPath)
         {
-            SQLiteConnection connection = buildDBConnection(dbName);
+            SQLiteConnection connection = buildDBConnection(dbPath);
 
             SQLiteCommand com = new SQLiteCommand("select tbl_name,rootpage from sqlite_master where type='table';", connection);
             SQLiteDataReader reader = com.ExecuteReader();

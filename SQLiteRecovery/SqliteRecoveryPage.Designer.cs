@@ -36,6 +36,7 @@
             // 
             // Back_button
             // 
+            this.Back_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Back_button.Location = new System.Drawing.Point(12, 472);
             this.Back_button.Name = "Back_button";
             this.Back_button.Size = new System.Drawing.Size(75, 23);
@@ -46,6 +47,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.tabsControl);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
@@ -56,6 +60,9 @@
             // 
             // tabsControl
             // 
+            this.tabsControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabsControl.Location = new System.Drawing.Point(6, 19);
             this.tabsControl.Name = "tabsControl";
             this.tabsControl.SelectedIndex = 0;
@@ -72,6 +79,7 @@
             this.Name = "SqliteRecoveryPage";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SqliteRecoveryPage";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.mainFrame_onClose);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 

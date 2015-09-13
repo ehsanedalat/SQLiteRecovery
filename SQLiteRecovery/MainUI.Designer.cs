@@ -142,6 +142,7 @@
             this.DBFileTextBox.Name = "DBFileTextBox";
             this.DBFileTextBox.Size = new System.Drawing.Size(313, 20);
             this.DBFileTextBox.TabIndex = 1;
+            this.DBFileTextBox.TextChanged += new System.EventHandler(this.DBFileTextBox_TextChanged);
             // 
             // DBLabel
             // 

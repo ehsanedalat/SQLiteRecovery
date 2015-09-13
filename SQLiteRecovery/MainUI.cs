@@ -10,6 +10,7 @@ using DevicePluginInterface;
 using System.Diagnostics;
 using PluginGenerator;
 using MySQLLibrary;
+using System.IO;
 
 namespace SQLiteRecovery
 {
@@ -327,15 +328,28 @@ namespace SQLiteRecovery
         {
             if (!String.IsNullOrEmpty(DBFilePath))
             {
-                this.Hide();
-                SqliteRecoveryPage recoveryPage = new SqliteRecoveryPage(this, DBFilePath, journalFilePath);
-                recoveryPage.Show();
+                SqliteRecoveryPage recoveryPage = null;
+                try
+                {
+                    recoveryPage = new SqliteRecoveryPage(this, DBFilePath, journalFilePath);
+                    recoveryPage.Show();
+                    this.Hide();
+                }
+                catch (FileNotFoundException ex)
+                {
+                    MessageBox.Show("There is no siutable file in given path!!!( "+ex.FileName+" )", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
                 ErrorProvider error = new ErrorProvider();
-                error.SetError(DBFileTextBox,"Empty Box !!");
+                error.SetError(DBFileTextBox, "Empty Box !!");
             }
+        }
+
+        private void DBFileTextBox_TextChanged(object sender, EventArgs e)
+        {
+            DBFilePath = DBFileTextBox.Text;
         }
        
     }

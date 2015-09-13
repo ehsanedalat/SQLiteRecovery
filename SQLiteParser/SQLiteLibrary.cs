@@ -62,6 +62,11 @@ namespace SQLiteParser
            return Utils.getAllTableRecords(dbFilePath, tableName, filter);
         }
 
+        public ArrayList getAllTableNames()
+        {
+            return Utils.getAllTableNames(dbFilePath);
+        }
+
         internal void readSMS()
         {
             ArrayList result = parser.readSMSs();
