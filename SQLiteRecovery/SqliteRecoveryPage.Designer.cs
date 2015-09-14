@@ -30,7 +30,7 @@
         {
             this.Back_button = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tabsControl = new System.Windows.Forms.TabControl();
+            this.dbTabsControl = new System.Windows.Forms.TabControl();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,24 +50,24 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.tabsControl);
+            this.groupBox1.Controls.Add(this.dbTabsControl);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(588, 454);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Recoverd Apps data:";
+            this.groupBox1.Text = "Recoverd Apps data";
             // 
-            // tabsControl
+            // dbTabsControl
             // 
-            this.tabsControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.dbTabsControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabsControl.Location = new System.Drawing.Point(6, 19);
-            this.tabsControl.Name = "tabsControl";
-            this.tabsControl.SelectedIndex = 0;
-            this.tabsControl.Size = new System.Drawing.Size(576, 429);
-            this.tabsControl.TabIndex = 0;
+            this.dbTabsControl.Location = new System.Drawing.Point(6, 19);
+            this.dbTabsControl.Name = "dbTabsControl";
+            this.dbTabsControl.SelectedIndex = 0;
+            this.dbTabsControl.Size = new System.Drawing.Size(576, 429);
+            this.dbTabsControl.TabIndex = 0;
             // 
             // SqliteRecoveryPage
             // 
@@ -89,6 +89,6 @@
 
         private System.Windows.Forms.Button Back_button;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TabControl tabsControl;
+        private System.Windows.Forms.TabControl dbTabsControl;
     }
 }

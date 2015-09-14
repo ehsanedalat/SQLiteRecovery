@@ -42,7 +42,7 @@ namespace SQLiteRecovery
         {
             SQLiteLibrary sqlite= buildSqliteConnection(dbFilePath);
             TabPage tab = BuildNewTabForDBData("DB NAME",sqlite);
-            this.tabsControl.Controls.Add(tab);
+            this.dbTabsControl.Controls.Add(tab);
         }
 
         private void BuildingAppsRecoverdDataTabs()
@@ -70,6 +70,7 @@ namespace SQLiteRecovery
             TabPage currentTabPage = new TabPage();
             TabPage unallocatedTabPage = new TabPage();
             TabPage journalTabPage = new TabPage();
+            TabPage freeBlockTabPage = new TabPage();
 
             ArrayList tables = sqlite.getAllTableNames();
 
@@ -104,6 +105,7 @@ namespace SQLiteRecovery
             recoverTabControl.Controls.Add(currentTabPage);
             recoverTabControl.Controls.Add(unallocatedTabPage);
             recoverTabControl.Controls.Add(journalTabPage);
+            recoverTabControl.Controls.Add(freeBlockTabPage);
             recoverTabControl.Location = new System.Drawing.Point(6, 16);
             recoverTabControl.Name = "recoverTabControl";
             recoverTabControl.SelectedIndex = 0;
@@ -117,7 +119,7 @@ namespace SQLiteRecovery
             currentTabPage.Padding = new System.Windows.Forms.Padding(3);
             currentTabPage.Size = new System.Drawing.Size(548, 276);
             currentTabPage.TabIndex = 0;
-            currentTabPage.Text = "Current Records";
+            currentTabPage.Text = "Current DB";
             currentTabPage.UseVisualStyleBackColor = true;
             // 
             // unallocatedTabPage
@@ -127,8 +129,18 @@ namespace SQLiteRecovery
             unallocatedTabPage.Padding = new System.Windows.Forms.Padding(3);
             unallocatedTabPage.Size = new System.Drawing.Size(192, 74);
             unallocatedTabPage.TabIndex = 1;
-            unallocatedTabPage.Text = "UnAllocated";
+            unallocatedTabPage.Text = "Unallocated";
             unallocatedTabPage.UseVisualStyleBackColor = true;
+            // 
+            // freeblockTabPage
+            // 
+            freeBlockTabPage.Location = new System.Drawing.Point(4, 22);
+            freeBlockTabPage.Name = "freeBlockTabPage";
+            freeBlockTabPage.Padding = new System.Windows.Forms.Padding(3);
+            freeBlockTabPage.Size = new System.Drawing.Size(192, 74);
+            freeBlockTabPage.TabIndex = 2;
+            freeBlockTabPage.Text = "Free Block";
+            freeBlockTabPage.UseVisualStyleBackColor = true;
             // 
             // journalTabPage
             // 
@@ -136,8 +148,8 @@ namespace SQLiteRecovery
             journalTabPage.Name = "journalTabPage";
             journalTabPage.Padding = new System.Windows.Forms.Padding(3);
             journalTabPage.Size = new System.Drawing.Size(192, 74);
-            journalTabPage.TabIndex = 2;
-            journalTabPage.Text = "Journal Records";
+            journalTabPage.TabIndex = 3;
+            journalTabPage.Text = "Journal File";
             journalTabPage.UseVisualStyleBackColor = true;
             // 
             // groupBox2
@@ -150,7 +162,7 @@ namespace SQLiteRecovery
             groupBox2.Controls.Add(filterTextBox);
             groupBox2.Controls.Add(label2);
             groupBox2.Location = new System.Drawing.Point(3, 3);
-            groupBox2.Name = "groupBox2";
+            groupBox2.Name = "propertisesGroupBox";
             groupBox2.Size = new System.Drawing.Size(562, 52);
             groupBox2.TabIndex = 5;
             groupBox2.TabStop = false;
@@ -174,7 +186,7 @@ namespace SQLiteRecovery
             showButton.TabIndex = 4;
             showButton.Text = "Show Records";
             showButton.UseVisualStyleBackColor = true;
-            showButton.Click += new EventHandler((sender, e) => showButton_Click(sender, e, sqlite));
+            showButton.Click += new EventHandler((sender, e) => showButton_Click(sender, e, sqlite, name));
             // 
             // label1
             // 
@@ -203,9 +215,62 @@ namespace SQLiteRecovery
             return tabPage;
         }
 
-        private void showButton_Click(object sender, EventArgs e, SQLiteLibrary sqlite)
+        private void showButton_Click(object sender, EventArgs e, SQLiteLibrary sqlite, string name)
         {
+            TabPage currentTab = getTabByName(name, dbTabsControl);
+            TabControl recover = (TabControl)currentTab.Controls["RecordsGroupBox"].Controls["recoverTabControl"];
+            TabPage current = getTabByName("currentTabPage", recover);
+            TabPage unallocated = getTabByName("unallocatedTabPage", recover);
+            TabPage freeBlock = getTabByName("freeBlockTabPage", recover);
+            TabPage journal = getTabByName("journalTabPage", recover);
+
+            string table=((ComboBox) currentTab.Controls["propertisesGroupBox"].Controls["tableComboBox"]).SelectedItem.ToString();
+            string filter = ((TextBox)currentTab.Controls["propertisesGroupBox"].Controls["filterTextBox"]).Text;
+
+            DataTable tableRecords= sqlite.getAllTableRecords(table, filter);
+            // 
+            // currentRecords
+            // 
             
+            if (current.Controls.ContainsKey("currentRecords"))
+            {
+                current.Controls.RemoveByKey("currentRecords");   
+            }
+            DataGridView records = new DataGridView();
+                records.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+                records.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+                records.Location = new System.Drawing.Point(6, 6);
+                records.Name = "currentRecords";
+                records.Size = new System.Drawing.Size(530, 291);
+                records.TabIndex = 0;
+                records.AutoGenerateColumns = true;
+            
+            records.DataSource = tableRecords;
+            records.DataError += new DataGridViewDataErrorEventHandler(records_DataError);
+            
+            current.Controls.Add(records);
+            
+            
+        }
+
+        void records_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            DataGridView records = (DataGridView)sender;
+            byte[] cell = (byte[])records.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+            records.Rows[e.RowIndex].Cells[e.ColumnIndex].ValueType = typeof(String);
+            records.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "blob(" + cell.Length + ")";
+            
+        }
+
+        private TabPage getTabByName(string name, TabControl dbTabsControl)
+        {
+            TabPage currentTab = null;
+            foreach (TabPage tab in dbTabsControl.TabPages)
+                if (tab.Name == name)
+                    currentTab = tab;
+            return currentTab;
         }
 
         private SQLiteLibrary buildSqliteConnection(string dbFilePath)
