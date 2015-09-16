@@ -15,12 +15,14 @@ namespace SQLiteParser
         private JournalFileParser journalParser;
         private string workSpacePath;
         private string dbFilePath;
+        private string dbCopyFilePath;
 
         public SQLiteLibrary(string workSpacePath,string dbFilePath)
         {
             this.workSpacePath = workSpacePath;
             this.dbFilePath = dbFilePath;
-            parser = new SQLiteParser(dbFilePath); 
+            parser = new SQLiteParser(dbFilePath);
+            this.dbCopyFilePath = parser.dbCopyFilePath;
             
         }
         /// <summary>
@@ -59,12 +61,12 @@ namespace SQLiteParser
         /// <param name="filter"></param>
         public DataTable getAllTableRecords(string tableName, string filter)
         {
-           return Utils.getAllTableRecords(dbFilePath, tableName, filter);
+           return Utils.getAllTableRecords(dbCopyFilePath, tableName, filter);
         }
 
         public ArrayList getAllTableNames()
         {
-            return Utils.getAllTableNames(dbFilePath);
+            return Utils.getAllTableNames(dbCopyFilePath);
         }
 
         internal void readSMS()

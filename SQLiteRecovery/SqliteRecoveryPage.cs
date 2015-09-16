@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using SQLiteParser;
 using System.IO;
 using System.Collections;
+using System.Diagnostics;
 
 namespace SQLiteRecovery
 {
@@ -227,6 +228,94 @@ namespace SQLiteRecovery
             string table=((ComboBox) currentTab.Controls["propertisesGroupBox"].Controls["tableComboBox"]).SelectedItem.ToString();
             string filter = ((TextBox)currentTab.Controls["propertisesGroupBox"].Controls["filterTextBox"]).Text;
 
+
+            //Unallocated and freeblock records...
+
+            
+            Dictionary<string, ArrayList> unallocatedRecords = sqlite.unAllocatedSpases();
+            
+            if (unallocatedRecords.ContainsKey(table))
+            {
+                int WIDTH = 100;
+                ArrayList result = unallocatedRecords[table];
+                ArrayList temp = new ArrayList();
+                if (!String.IsNullOrEmpty(filter))
+                {
+                    for (int i = 0; i < result.Count;i++ )
+                    {
+                        if (((string[])result[i])[2].IndexOf(filter, 0) != -1)
+                        {
+                            temp.Add(result[i]);
+                        }
+                    }
+                    result.Clear();
+                    result.AddRange(temp);
+                }
+
+                if (unallocated.Controls.ContainsKey("currentRecords"))
+                {
+                    unallocated.Controls.RemoveByKey("currentRecords");
+                }
+                DataGridView UnallocatedRecords = new DataGridView();
+                UnallocatedRecords.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+                UnallocatedRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+                UnallocatedRecords.Location = new System.Drawing.Point(6, 6);
+                UnallocatedRecords.Name = "currentRecords";
+                UnallocatedRecords.Size = new System.Drawing.Size(530, 291);
+                UnallocatedRecords.TabIndex = 0;
+                UnallocatedRecords.AutoGenerateColumns = true;
+                UnallocatedRecords.ColumnCount=2;
+                UnallocatedRecords.Columns[0].Name = "";
+                UnallocatedRecords.Columns[1].Name = "Data";
+                UnallocatedRecords.Columns[1].Width = UnallocatedRecords.Columns[1].MinimumWidth + WIDTH;
+                disableEditing(UnallocatedRecords);
+                UnallocatedRecords.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
+
+                if (freeBlock.Controls.ContainsKey("currentRecords"))
+                {
+                    freeBlock.Controls.RemoveByKey("currentRecords");
+                }
+                DataGridView FreeBlockRecords = new DataGridView();
+                FreeBlockRecords.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+                FreeBlockRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+                FreeBlockRecords.Location = new System.Drawing.Point(6, 6);
+                FreeBlockRecords.Name = "currentRecords";
+                FreeBlockRecords.Size = new System.Drawing.Size(530, 291);
+                FreeBlockRecords.TabIndex = 0;
+                FreeBlockRecords.AutoGenerateColumns = true;
+                FreeBlockRecords.ColumnCount = 2;
+                FreeBlockRecords.Columns[0].Name = "";
+                FreeBlockRecords.Columns[1].Name = "Data";
+                FreeBlockRecords.Columns[1].Width = FreeBlockRecords.Columns[1].MinimumWidth + WIDTH;
+                disableEditing(FreeBlockRecords);
+                FreeBlockRecords.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
+
+                int index = 0;
+                int indexf = 0;
+                foreach (string[] item in result)
+                {
+                    
+                    if (item[1] == "FREE BLOCK")
+                    {
+                        indexf++;
+                        FreeBlockRecords.Rows.Add(new string[] { indexf + "", item[2] });
+                    }
+                    else
+                    {
+                        index++;
+                        UnallocatedRecords.Rows.Add(new string[] { index + "", item[2] });
+                    }
+                }
+
+                unallocated.Controls.Add(UnallocatedRecords);
+                freeBlock.Controls.Add(FreeBlockRecords);
+            }
+            // All current records...
+            
             DataTable tableRecords= sqlite.getAllTableRecords(table, filter);
             // 
             // currentRecords
@@ -249,18 +338,31 @@ namespace SQLiteRecovery
             
             records.DataSource = tableRecords;
             records.DataError += new DataGridViewDataErrorEventHandler(records_DataError);
-            
+            records.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
+
             current.Controls.Add(records);
-            
-            
+            disableEditing(records);
+            //journal records...
         }
 
+        private void disableEditing(DataGridView dataGridView)
+        {
+            foreach (DataGridViewBand band in dataGridView.Columns)
+            {
+                band.ReadOnly = true;
+            }
+        }
+        private void DataGridView1_CellDoubleClick(Object sender, DataGridViewCellEventArgs e)
+        {
+            //TODO MESSAGE FORM
+            MessageBox.Show(((DataGridView)sender).SelectedCells[0].Value.ToString());
+        }
         void records_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             DataGridView records = (DataGridView)sender;
             byte[] cell = (byte[])records.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
             records.Rows[e.RowIndex].Cells[e.ColumnIndex].ValueType = typeof(String);
-            records.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "blob(" + cell.Length + ")";
+            //records.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "blob(" + cell.Length + ")";
             
         }
 
@@ -284,6 +386,7 @@ namespace SQLiteRecovery
         {
             this.Hide();
             MainPage.Show();
+            //TODO BACK BUTTON EXCEPTION!!!
         }
 
         private void mainFrame_onClose(object sender, FormClosedEventArgs e)

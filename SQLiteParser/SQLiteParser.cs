@@ -31,6 +31,7 @@ namespace SQLiteParser
         private Dictionary<int, ArrayList> sqliteTypes;
 
         private ArrayList records = new ArrayList();//TODO change dataset!
+        internal string dbCopyFilePath;
 
         internal SQLiteParser(string dbFilePath)
         {
@@ -68,7 +69,7 @@ namespace SQLiteParser
                 Array.Reverse(result);
                 pageSize = BitConverter.ToInt16(result, 0);
 
-                string dbCopyFilePath = dbFilePath + "_c";
+                dbCopyFilePath = dbFilePath + "_c";
                 
                 System.IO.File.Copy(dbFilePath, dbCopyFilePath,true);
                 
@@ -214,7 +215,8 @@ namespace SQLiteParser
             foreach (string[] item in tableInfo)
             {
                 BTreeTraversal(Convert.ToInt32(item[1]));
-                res.Add(item[0],(ArrayList)UnallocatedSpaceDeletedRecords.Clone());
+                if(UnallocatedSpaceDeletedRecords.Count>0)
+                    res.Add(item[0],(ArrayList)UnallocatedSpaceDeletedRecords.Clone());
                 UnallocatedSpaceDeletedRecords.Clear();
                 
             }
@@ -698,7 +700,7 @@ namespace SQLiteParser
                             records.Add(item);
                         }
                     }
-                    connection.Close();
+                    Utils.closeSqlitConnection(connection);
 
                     index++;
                     if (index < filePathes.Length)
@@ -710,6 +712,7 @@ namespace SQLiteParser
             return result;
 
         }
+
         /// <summary>
         /// find offset of leaf pages in journal file.
         /// </summary>

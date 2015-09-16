@@ -110,9 +110,8 @@ namespace SQLiteParser
         {
             SQLiteConnection connection = buildDBConnection(dbName);
             SQLiteCommand com = new SQLiteCommand("select rootpage from sqlite_master where type='table' and tbl_name='" + tableName + "';", connection);
-            int result = Convert.ToInt32(com.ExecuteScalar());
-            connection.Close();
-            connection.Dispose();
+            int result = Convert.ToInt32(com.ExecuteScalar(CommandBehavior.CloseConnection));
+            closeSqlitConnection(connection);
 
             return result;
         }
@@ -127,13 +126,15 @@ namespace SQLiteParser
             SQLiteConnection connection = buildDBConnection(dbPath);
 
             SQLiteCommand com = new SQLiteCommand("select tbl_name,rootpage from sqlite_master where type='table';", connection);
-            SQLiteDataReader reader = com.ExecuteReader();
+            SQLiteDataReader reader = com.ExecuteReader(CommandBehavior.CloseConnection);
             ArrayList result = new ArrayList();
             while (reader.Read())
             {
                 result.Add(new string[] { (string)reader["tbl_name"], Convert.ToString(reader["rootpage"]) });
             }
-            connection.Close();
+            
+            reader.Close();
+            closeSqlitConnection(connection);
 
             return result;
         }
@@ -255,7 +256,7 @@ namespace SQLiteParser
             process.StartInfo.WorkingDirectory = path;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName =path+@"\sqldiff.exe";
+            process.StartInfo.FileName =path+@"\"+sqldiffToolName;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardOutput = true;
@@ -332,26 +333,18 @@ namespace SQLiteParser
             SQLiteDataAdapter da = new SQLiteDataAdapter(com);
             DataSet dataSet = new DataSet();
             da.Fill(dataSet);
+            dataSet.Dispose();
+            da.Dispose();
+            closeSqlitConnection(connection);
+            
             return dataSet.Tables[0];
-            /*SQLiteDataReader reader = com.ExecuteReader();
+        }
 
-            Console.WriteLine("sms");
-            foreach (string col in colNames)
-            {
-                Debug.Write(col + " | ");
-            }
-            Debug.WriteLine("\r\n");
-            while (reader.Read())
-            {
-                foreach (string col in colNames)
-                {
-                    Debug.Write(reader[col] + " | ");
-                }
-                Debug.WriteLine("\r\n");
-            }
+        internal static void closeSqlitConnection(SQLiteConnection connection)
+        {
+            System.Data.SQLite.SQLiteConnection.ClearAllPools();
             connection.Close();
-
-            return null;*/
+            GC.Collect();
         }
     }
 }
