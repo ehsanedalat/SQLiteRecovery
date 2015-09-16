@@ -608,7 +608,7 @@ namespace SQLiteParser
             this.journalFilePath = journalFilePath;
             this.dbFilePath = dbFilePath;
             this.path = workSpacePath;
-            rollbackedFile = workSpacePath + @"rollbackedDBs\" + "rollBackedFile";
+            rollbackedFile = workSpacePath  + @"\rollBackedFile";
 
             init();
 

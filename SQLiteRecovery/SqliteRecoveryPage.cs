@@ -17,6 +17,8 @@ namespace SQLiteRecovery
     {
         private List<CheckBox> checkedBoxes;
         private Form MainPage;
+        private string dbFilePath;
+        private string journalFilePath;
 
         internal SqliteRecoveryPage(List<CheckBox> checkedBoxes, Form MainPage)
         {
@@ -34,12 +36,14 @@ namespace SQLiteRecovery
             InitializeComponent();
 
             this.MainPage = MainPage;
+            this.dbFilePath = dbFilePath;
+            this.journalFilePath = journalFilePath;
 
-            BuildingRecoverDataTabs(dbFilePath, journalFilePath);
+            BuildingRecoverDataTabs();
 
         }
 
-        private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath)
+        private void BuildingRecoverDataTabs()
         {
             SQLiteLibrary sqlite= buildSqliteConnection(dbFilePath);
             TabPage tab = BuildNewTabForDBData("DB NAME",sqlite);
@@ -233,7 +237,7 @@ namespace SQLiteRecovery
 
             
             Dictionary<string, ArrayList> unallocatedRecords = sqlite.unAllocatedSpases();
-            
+
             if (unallocatedRecords.ContainsKey(table))
             {
                 int WIDTH = 100;
@@ -241,7 +245,7 @@ namespace SQLiteRecovery
                 ArrayList temp = new ArrayList();
                 if (!String.IsNullOrEmpty(filter))
                 {
-                    for (int i = 0; i < result.Count;i++ )
+                    for (int i = 0; i < result.Count; i++)
                     {
                         if (((string[])result[i])[2].IndexOf(filter, 0) != -1)
                         {
@@ -263,10 +267,10 @@ namespace SQLiteRecovery
                 UnallocatedRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
                 UnallocatedRecords.Location = new System.Drawing.Point(6, 6);
                 UnallocatedRecords.Name = "currentRecords";
-                UnallocatedRecords.Size = new System.Drawing.Size(530, 291);
+                UnallocatedRecords.Size = new System.Drawing.Size(unallocated.Width - 10, unallocated.Height - 10);
                 UnallocatedRecords.TabIndex = 0;
                 UnallocatedRecords.AutoGenerateColumns = true;
-                UnallocatedRecords.ColumnCount=2;
+                UnallocatedRecords.ColumnCount = 2;
                 UnallocatedRecords.Columns[0].Name = "";
                 UnallocatedRecords.Columns[1].Name = "Data";
                 UnallocatedRecords.Columns[1].Width = UnallocatedRecords.Columns[1].MinimumWidth + WIDTH;
@@ -284,7 +288,7 @@ namespace SQLiteRecovery
                 FreeBlockRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
                 FreeBlockRecords.Location = new System.Drawing.Point(6, 6);
                 FreeBlockRecords.Name = "currentRecords";
-                FreeBlockRecords.Size = new System.Drawing.Size(530, 291);
+                FreeBlockRecords.Size = new System.Drawing.Size(freeBlock.Width - 10, freeBlock.Height - 10);
                 FreeBlockRecords.TabIndex = 0;
                 FreeBlockRecords.AutoGenerateColumns = true;
                 FreeBlockRecords.ColumnCount = 2;
@@ -298,7 +302,7 @@ namespace SQLiteRecovery
                 int indexf = 0;
                 foreach (string[] item in result)
                 {
-                    
+
                     if (item[1] == "FREE BLOCK")
                     {
                         indexf++;
@@ -313,6 +317,17 @@ namespace SQLiteRecovery
 
                 unallocated.Controls.Add(UnallocatedRecords);
                 freeBlock.Controls.Add(FreeBlockRecords);
+            }
+            else
+            {
+                if (unallocated.Controls.ContainsKey("currentRecords"))
+                {
+                    unallocated.Controls.RemoveByKey("currentRecords");
+                }
+                if (freeBlock.Controls.ContainsKey("currentRecords"))
+                {
+                    freeBlock.Controls.RemoveByKey("currentRecords");
+                }
             }
             // All current records...
             
@@ -332,7 +347,7 @@ namespace SQLiteRecovery
                 records.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
                 records.Location = new System.Drawing.Point(6, 6);
                 records.Name = "currentRecords";
-                records.Size = new System.Drawing.Size(530, 291);
+                records.Size = new System.Drawing.Size(current.Width - 10, current.Height - 10);
                 records.TabIndex = 0;
                 records.AutoGenerateColumns = true;
             
@@ -343,6 +358,89 @@ namespace SQLiteRecovery
             current.Controls.Add(records);
             disableEditing(records);
             //journal records...
+
+            if (!String.IsNullOrEmpty(journalFilePath))
+            {
+                Dictionary<string,ArrayList> result= sqlite.journalRecovery(journalFilePath);
+
+                if (result.ContainsKey(table))
+                {
+                    ArrayList list = result[table];
+                    if (!String.IsNullOrEmpty(filter))
+                    {
+                        ArrayList temp = new ArrayList();
+                        temp.Add(list[0]);
+                        foreach (ArrayList item in list)
+                        {
+                            foreach (object obj in item)
+                            {
+                                if (obj is string)
+                                {
+                                    if (((string)obj).Contains(filter))
+                                    {
+                                        if (temp[0] != item)
+                                        {
+                                            temp.Add(item);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        list.Clear();
+                        list.AddRange(temp);
+                    }
+                    if (journal.Controls.ContainsKey("currentRecords"))
+                    {
+                        journal.Controls.RemoveByKey("currentRecords");
+                    }
+                    DataGridView JournalRecords = new DataGridView();
+                    JournalRecords.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                | System.Windows.Forms.AnchorStyles.Left)
+                | System.Windows.Forms.AnchorStyles.Right)));
+                    JournalRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+                    JournalRecords.Location = new System.Drawing.Point(6, 6);
+                    JournalRecords.Name = "currentRecords";
+                    JournalRecords.Size = new System.Drawing.Size(freeBlock.Width - 10, freeBlock.Height - 10);
+                    JournalRecords.TabIndex = 0;
+                    JournalRecords.AutoGenerateColumns = true;
+                    JournalRecords.ColumnCount = ((ArrayList)list[0]).Count;
+                    for (int i = 0; i < ((ArrayList)list[0]).Count; i++)
+                    {
+                        JournalRecords.Columns[i].Name = (string)((ArrayList)list[0])[i];
+                    }
+
+                    disableEditing(JournalRecords);
+                    JournalRecords.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
+
+                    for (int i = 1; i < list.Count; i++)
+                    {
+                        string[] item = new string[((ArrayList)list[i]).Count];
+                        int index = 0;
+                        foreach (object obj in (ArrayList)list[i])
+                        {
+                            if (obj is byte[])
+                            {
+                                item[index] = "BLOB(" + ((byte[])obj).Length + ")";
+                            }
+                            else
+                            {
+                                item[index] = obj.ToString();
+                            }
+                            index++;
+                        }
+                        JournalRecords.Rows.Add(item);
+                    }
+                    journal.Controls.Add(JournalRecords);
+                }
+                else
+                {
+                    if (journal.Controls.ContainsKey("currentRecords"))
+                    {
+                        journal.Controls.RemoveByKey("currentRecords");
+                    }
+                }
+            }
         }
 
         private void disableEditing(DataGridView dataGridView)

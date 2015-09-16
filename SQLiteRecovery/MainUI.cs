@@ -320,7 +320,7 @@ namespace SQLiteRecovery
             if (journalOpenFileDialog.ShowDialog() == DialogResult.OK)
             {
                 journalFilePath = journalOpenFileDialog.FileName;
-                DBFileTextBox.Text = journalFilePath;
+                journalFileTextBox.Text = journalFilePath;
             }
         }
 
