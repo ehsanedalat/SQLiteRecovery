@@ -35,6 +35,22 @@ namespace SQLiteRecovery
 
             tabs=new Dictionary<string,Dictionary<string,string>>();
             getPluginData();
+            OSTabsControl.SelectedIndexChanged += new EventHandler(OSTabsControl_SelectedIndexChanged);
+        }
+
+        void OSTabsControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TabPage current = ((TabControl)sender).SelectedTab;
+            if (current.Name == "directTabPage")
+            {
+                editButton.Enabled = false;
+                deleteButton.Enabled = false;
+            }
+            else
+            {
+                editButton.Enabled = true;
+                deleteButton.Enabled = true;
+            }
         }
 
         
@@ -95,17 +111,6 @@ namespace SQLiteRecovery
             tabPage.Text = name;
             tabPage.UseVisualStyleBackColor = true;
             // 
-            // recoverButton
-            // 
-            recoverButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            recoverButton.Location = new System.Drawing.Point(188, 378);
-            recoverButton.Name = "recoverButton";
-            recoverButton.Size = new System.Drawing.Size(181, 29);
-            recoverButton.TabIndex = 0;
-            recoverButton.Text = "Recover selected Apps data";
-            recoverButton.UseVisualStyleBackColor = true;
-
-            // 
             // label1
             // 
             label1.AutoSize = true;
@@ -150,7 +155,7 @@ namespace SQLiteRecovery
             groupBox2.Size = new System.Drawing.Size(576, 225);
             groupBox2.TabIndex = 4;
             groupBox2.TabStop = false;
-            groupBox2.Text = "Select Witch App to recover Data:";
+            groupBox2.Text = "Select Witch App to recover Data";
             // 
             // appsPannel
             // 
@@ -215,10 +220,27 @@ namespace SQLiteRecovery
             rootButton.TabIndex = 2;
             rootButton.Text = "UnRoot";
             rootButton.UseVisualStyleBackColor = true;
-            
+            // 
+            // recoverButton
+            // 
+            recoverButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            recoverButton.Location = new System.Drawing.Point(188, 378);
+            recoverButton.Name = "recoverButton";
+            recoverButton.Size = new System.Drawing.Size(181, 29);
+            recoverButton.TabIndex = 0;
+            recoverButton.Text = "Recover selected Apps data";
+            recoverButton.UseVisualStyleBackColor = true;
+            recoverButton.Click += new EventHandler((sender, e) => recoverButtonPlugin_Click(sender, e, item));
+
             OSTabsControl.Controls.Add(tabPage);
             appsData.Clear();
         }
+
+        private void recoverButtonPlugin_Click(object sender, EventArgs e, Dictionary<string,string> apps)
+        {
+
+        }
+
         /// <summary>
         /// listener for each tab page, adding to main UI
         /// </summary>
@@ -351,6 +373,6 @@ namespace SQLiteRecovery
         {
             DBFilePath = DBFileTextBox.Text;
         }
-       
+        
     }
 }

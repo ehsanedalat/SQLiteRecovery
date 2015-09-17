@@ -5,73 +5,50 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using DevicePluginInterface;
+using System.Collections;
 
 namespace SQLiteRecovery
 {
     class PluginServices
     {
-        /// <summary>
-        ///     this class is used for loading plugins that is stored in ".dll" file format in special directory.
-        /// </summary>
-        /// <param name="path">
-        ///     path is a Address of saved plugins directory.(type: string)
-        /// </param>
-        /// <returns>
-        ///     list of all plugins that exists in path directory.(type: ICollection)
-        /// </returns>
-
-        public static ICollection<DeviceRecoveryPluginInterface> LoadPlugins(string path)
+        
+        internal static object loadPlugin(string path)
         {
-            string[] dllFileNames = null;
+            // Use the file name to load the assembly into the current
+            // application domain.
+            Assembly a = Assembly.Load(path);
+            // Get the type to use.
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            // Create an instance.
+            return Activator.CreateInstance(pluginType);
+        }
 
-            if (Directory.Exists(path))
-            {
-                dllFileNames = Directory.GetFiles(path, "*.dll");
+        internal static void copyAppsDataBaseFromDevice(object plugin, Dictionary<string, string> apps, string distination)
+        {
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            MethodInfo copyMethod = pluginType.GetMethod("copyAppsDataBaseFromDevice");
+            copyMethod.Invoke(plugin, new object[] { apps, distination });
+        }
 
-                ICollection<Assembly> assemblies = new List<Assembly>(dllFileNames.Length);
-                foreach (string dllFile in dllFileNames)
-                {
-                    AssemblyName an = AssemblyName.GetAssemblyName(dllFile);
-                    Assembly assembly = Assembly.Load(an);
-                    assemblies.Add(assembly);
-                }
+        internal static bool isDeviceRoot(object plugin)
+        {
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            MethodInfo copyMethod = pluginType.GetMethod("isDeviceRoot");
+            return (bool)copyMethod.Invoke(plugin, null);
+        }
 
-                Type pluginType = typeof(DeviceRecoveryPluginInterface);
-                ICollection<Type> pluginTypes = new List<Type>();
-                foreach (Assembly assembly in assemblies)
-                {
-                    if (assembly != null)
-                    {
-                        Type[] types = assembly.GetTypes();
+        internal static bool rootDevice(object plugin)
+        {
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            MethodInfo copyMethod = pluginType.GetMethod("rootDevice");
+            return (bool)copyMethod.Invoke(plugin, null);
+        }
 
-                        foreach (Type type in types)
-                        {
-                            if (type.IsInterface || type.IsAbstract)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                if (type.GetInterface(pluginType.FullName) != null)
-                                {
-                                    pluginTypes.Add(type);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                ICollection<DeviceRecoveryPluginInterface> plugins = new List<DeviceRecoveryPluginInterface>(pluginTypes.Count);
-                foreach (Type type in pluginTypes)
-                {
-                    DeviceRecoveryPluginInterface plugin = (DeviceRecoveryPluginInterface)Activator.CreateInstance(type);
-                    plugins.Add(plugin);
-                }
-
-                return plugins;
-            }
-
-            return null;
+        internal static bool unRootDevice(object plugin)
+        {
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            MethodInfo copyMethod = pluginType.GetMethod("unRootDevice");
+            return (bool)copyMethod.Invoke(plugin, null);
         }
     }
 }

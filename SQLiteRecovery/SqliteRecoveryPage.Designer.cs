@@ -76,6 +76,7 @@
             this.ClientSize = new System.Drawing.Size(612, 507);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Back_button);
+            this.HelpButton = true;
             this.Name = "SqliteRecoveryPage";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SqliteRecoveryPage";

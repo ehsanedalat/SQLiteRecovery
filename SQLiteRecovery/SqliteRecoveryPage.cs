@@ -19,6 +19,10 @@ namespace SQLiteRecovery
         private Form MainPage;
         private string dbFilePath;
         private string journalFilePath;
+        private Dictionary<string, ArrayList> tabsPointers = new Dictionary<string, ArrayList>();
+        private Dictionary<string, ArrayList> journalResult;
+        private Dictionary<string, ArrayList> unallocatedResult;
+        private SQLiteLibrary sqliteLibrary;
 
         internal SqliteRecoveryPage(List<CheckBox> checkedBoxes, Form MainPage)
         {
@@ -36,18 +40,60 @@ namespace SQLiteRecovery
             InitializeComponent();
 
             this.MainPage = MainPage;
-            this.dbFilePath = dbFilePath;
-            this.journalFilePath = journalFilePath;
+            
 
-            BuildingRecoverDataTabs();
+            BuildingRecoverDataTabs(dbFilePath, journalFilePath);
+
 
         }
 
-        private void BuildingRecoverDataTabs()
+        private void dbTabsControl_SelectedIndexChanged(Object sender, EventArgs e,SQLiteLibrary sqlite,string dbFilePath,string journalFilePath)
         {
-            SQLiteLibrary sqlite= buildSqliteConnection(dbFilePath);
-            TabPage tab = BuildNewTabForDBData("DB NAME",sqlite);
+            string tabName = ((TabControl)sender).SelectedTab.Name;
+
+            if (tabsPointers.ContainsKey(tabName))
+            {
+                sqliteLibrary = (SQLiteLibrary)((ArrayList) tabsPointers[tabName])[0];
+                unallocatedResult = (Dictionary<string,ArrayList>)((ArrayList)tabsPointers[tabName])[1];
+                journalResult = (Dictionary<string, ArrayList>)((ArrayList)tabsPointers[tabName])[2];
+                this.dbFilePath = (string)((ArrayList)tabsPointers[tabName])[3];
+                this.journalFilePath = (string)((ArrayList)tabsPointers[tabName])[4];
+            }
+            else
+            {
+                ArrayList item = new ArrayList();
+                sqliteLibrary = sqlite;
+                item.Add(sqlite);
+                unallocatedResult = sqlite.unAllocatedSpases();
+                item.Add(unallocatedResult);
+                if (!string.IsNullOrEmpty(journalFilePath))
+                {
+                    journalResult = sqlite.journalRecovery(journalFilePath);
+                    item.Add(journalResult);
+                }
+                else
+                {
+                    item.Add(null);
+                }
+                item.Add(dbFilePath);
+                item.Add(journalFilePath);
+
+                this.dbFilePath = dbFilePath;
+                this.journalFilePath = journalFilePath;
+
+                tabsPointers.Add(tabName, item);
+            }
+        }
+
+        private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath)
+        {
+            string tabName = dbFilePath.Substring(dbFilePath.LastIndexOf(@"\")).Replace(@"\", "");
+            SQLiteLibrary sqlite = buildSqliteConnection(dbFilePath, tabName);
+            TabPage tab = BuildNewTabForDBData(tabName, sqlite.getAllTableNames());
+            this.dbTabsControl.SelectedIndexChanged += new EventHandler((send, eventHandler) => dbTabsControl_SelectedIndexChanged(send, eventHandler, sqlite, dbFilePath, journalFilePath));
             this.dbTabsControl.Controls.Add(tab);
+            dbTabsControl_SelectedIndexChanged(dbTabsControl,null, sqlite, dbFilePath,journalFilePath);
+            
         }
 
         private void BuildingAppsRecoverdDataTabs()
@@ -61,7 +107,7 @@ namespace SQLiteRecovery
             }
         }
 
-        private TabPage BuildNewTabForDBData(string name, SQLiteLibrary sqlite)
+        private TabPage BuildNewTabForDBData(string name, ArrayList tables)
         {
             TabPage tabPage = new TabPage();
             GroupBox RecordsGroupBox = new GroupBox();
@@ -76,8 +122,6 @@ namespace SQLiteRecovery
             TabPage unallocatedTabPage = new TabPage();
             TabPage journalTabPage = new TabPage();
             TabPage freeBlockTabPage = new TabPage();
-
-            ArrayList tables = sqlite.getAllTableNames();
 
             tabPage.Location = new System.Drawing.Point(4, 22);
             tabPage.Name = name;
@@ -191,7 +235,7 @@ namespace SQLiteRecovery
             showButton.TabIndex = 4;
             showButton.Text = "Show Records";
             showButton.UseVisualStyleBackColor = true;
-            showButton.Click += new EventHandler((sender, e) => showButton_Click(sender, e, sqlite, name));
+            showButton.Click += new EventHandler((sender, e) => showButton_Click(sender, e, name));
             // 
             // label1
             // 
@@ -220,7 +264,7 @@ namespace SQLiteRecovery
             return tabPage;
         }
 
-        private void showButton_Click(object sender, EventArgs e, SQLiteLibrary sqlite, string name)
+        private void showButton_Click(object sender, EventArgs e, string name)
         {
             TabPage currentTab = getTabByName(name, dbTabsControl);
             TabControl recover = (TabControl)currentTab.Controls["RecordsGroupBox"].Controls["recoverTabControl"];
@@ -235,13 +279,10 @@ namespace SQLiteRecovery
 
             //Unallocated and freeblock records...
 
-            
-            Dictionary<string, ArrayList> unallocatedRecords = sqlite.unAllocatedSpases();
-
-            if (unallocatedRecords.ContainsKey(table))
+            if (unallocatedResult.ContainsKey(table))
             {
                 int WIDTH = 100;
-                ArrayList result = unallocatedRecords[table];
+                ArrayList result = unallocatedResult[table];
                 ArrayList temp = new ArrayList();
                 if (!String.IsNullOrEmpty(filter))
                 {
@@ -330,8 +371,8 @@ namespace SQLiteRecovery
                 }
             }
             // All current records...
-            
-            DataTable tableRecords= sqlite.getAllTableRecords(table, filter);
+
+            DataTable tableRecords = sqliteLibrary.getAllTableRecords(table, filter);
             // 
             // currentRecords
             // 
@@ -361,11 +402,10 @@ namespace SQLiteRecovery
 
             if (!String.IsNullOrEmpty(journalFilePath))
             {
-                Dictionary<string,ArrayList> result= sqlite.journalRecovery(journalFilePath);
 
-                if (result.ContainsKey(table))
+                if (journalResult.ContainsKey(table))
                 {
-                    ArrayList list = result[table];
+                    ArrayList list = journalResult[table];
                     if (!String.IsNullOrEmpty(filter))
                     {
                         ArrayList temp = new ArrayList();
@@ -401,7 +441,7 @@ namespace SQLiteRecovery
                     JournalRecords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
                     JournalRecords.Location = new System.Drawing.Point(6, 6);
                     JournalRecords.Name = "currentRecords";
-                    JournalRecords.Size = new System.Drawing.Size(freeBlock.Width - 10, freeBlock.Height - 10);
+                    JournalRecords.Size = new System.Drawing.Size(journal.Width - 10, journal.Height - 10);
                     JournalRecords.TabIndex = 0;
                     JournalRecords.AutoGenerateColumns = true;
                     JournalRecords.ColumnCount = ((ArrayList)list[0]).Count;
@@ -415,13 +455,13 @@ namespace SQLiteRecovery
 
                     for (int i = 1; i < list.Count; i++)
                     {
-                        string[] item = new string[((ArrayList)list[i]).Count];
+                        object[] item = new object[((ArrayList)list[i]).Count];
                         int index = 0;
                         foreach (object obj in (ArrayList)list[i])
                         {
                             if (obj is byte[])
                             {
-                                item[index] = "BLOB(" + ((byte[])obj).Length + ")";
+                                item[index] =((byte[])obj);
                             }
                             else
                             {
@@ -453,7 +493,27 @@ namespace SQLiteRecovery
         private void DataGridView1_CellDoubleClick(Object sender, DataGridViewCellEventArgs e)
         {
             //TODO MESSAGE FORM
-            MessageBox.Show(((DataGridView)sender).SelectedCells[0].Value.ToString());
+            object cell=((DataGridView)sender).SelectedCells[0].Value;
+            if (cell is byte[])
+            {
+                string res = "";
+                foreach (byte b in (byte[])cell)
+                {
+                    res = res + Convert.ToString(b, 16) + " ";
+                }
+                MessageBox.Show(res);
+            }
+            else
+            {
+                try
+                {
+                    MessageBox.Show((string)cell);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(cell.ToString());
+                }
+            }
         }
         void records_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
@@ -473,9 +533,11 @@ namespace SQLiteRecovery
             return currentTab;
         }
 
-        private SQLiteLibrary buildSqliteConnection(string dbFilePath)
+        private SQLiteLibrary buildSqliteConnection(string dbFilePath, string dbName)
         {
-            SQLiteLibrary sqlite = new SQLiteLibrary(@"..\workspace", dbFilePath);
+            dbName = dbName.Split(new char[] { '.' })[0];
+
+            SQLiteLibrary sqlite = new SQLiteLibrary(@"..\workspace\"+dbName, dbFilePath);
             
             return sqlite;
         }
@@ -491,5 +553,6 @@ namespace SQLiteRecovery
         {
             Application.Exit();
         }
+
     }
 }

@@ -609,7 +609,10 @@ namespace SQLiteParser
             this.dbFilePath = dbFilePath;
             this.path = workSpacePath;
             rollbackedFile = workSpacePath  + @"\rollBackedFile";
-
+            if (!Directory.Exists(workSpacePath))
+            {
+                Directory.CreateDirectory(workSpacePath);
+            }
             init();
 
             fillBackupPages();
