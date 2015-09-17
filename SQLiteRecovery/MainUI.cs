@@ -29,7 +29,7 @@ namespace SQLiteRecovery
         {
             InitializeComponent();
             
-            plugins = PluginServices.LoadPlugins("Plugins");
+            //plugins = PluginServices.LoadPlugins("Plugins");
 
             utils = new SQLUtils("sqlite_recovery_plugins");
 

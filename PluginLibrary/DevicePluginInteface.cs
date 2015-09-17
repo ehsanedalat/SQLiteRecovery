@@ -8,12 +8,12 @@ namespace DevicePluginInterface
 {
     public interface DeviceRecoveryPluginInterface
     {
-        public void copyAppsDataBaseFromDevice(Dictionary<string, string> apps, string distination);
+        void copyAppsDataBaseFromDevice(Dictionary<string, string> apps, string distination);
 
-        public bool isDeviceRoot();
+        bool isDeviceRoot();
 
-        public bool rootDevice();
+        bool rootDevice();
 
-        public bool unRootDevice();
+        bool unRootDevice();
     }
 }
