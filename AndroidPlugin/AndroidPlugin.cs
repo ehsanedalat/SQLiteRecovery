@@ -4,81 +4,85 @@ using System.Linq;
 using System.Text;
 using DevicePluginInterface;
 using System.Windows.Forms;
+using RegawMOD.Android;
+using System.Diagnostics;
+using System.Threading;
 
 namespace AndroidPlugin
 {
     public class AndroidPlugin : DeviceRecoveryPluginInterface
     {
-        #region overide interface methodes
+        private AndroidController android;
+        private Device device;
+        private Thread thread;
 
-        public void root()
+        public AndroidPlugin()
+        {
+            android = AndroidController.Instance;
+            DeviceConnect += ConnectingDevice;
+            if (!android.HasConnectedDevices)
+            {
+                thread = new Thread(waitForDevice);
+                thread.Start();
+            }
+            else
+            {
+                device = android.GetConnectedDevice();
+            }
+        }
+        private void waitForDevice()
+        {
+            android.WaitForDevice();
+            OnDeviceConnected(EventArgs.Empty);
+
+            thread.Abort();
+        }
+        protected virtual void OnDeviceConnected(EventArgs e)
+        {
+            EventHandler handler = DeviceConnect;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        public EventHandler DeviceConnect;
+
+        public void ConnectingDevice(object sender, EventArgs e)
+        {
+            device = android.GetConnectedDevice();
+        }
+
+        public void copyAppsDataBaseFromDevice(Dictionary<string, string> apps, string destination)
+        {
+            foreach (string key in apps.Keys)
+            {
+                device.PullFile(apps[key], destination);
+                device.PullFile(apps[key] + "-journal", destination);
+                /*AdbCommand adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, apps[key] });
+                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
+                adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, apps[key] + "-journal" });
+                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
+                adbCmd = Adb.FormAdbCommand(device, "pull", apps[key], destination);
+                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
+                adbCmd = Adb.FormAdbCommand(device, "pull", apps[key]+"-journal", destination);
+                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));*/
+            }
+        }
+
+        public bool isDeviceRoot()
+        { 
+            return device.HasRoot;
+        }
+
+        public bool rootDevice()
         {
             throw new NotImplementedException();
         }
 
-        public void copyFilesFromDevice(string storingPathInComputer, Dictionary<string, string> appsPathInDevice)
+        public bool unRootDevice()
         {
             throw new NotImplementedException();
-        }
-
-        public void setOsTabControls()
-        {
-            Button recoverButton = new Button();
-            recoverButton.Location = new System.Drawing.Point(201, 396);
-            recoverButton.Name = "button1";
-            recoverButton.Size = new System.Drawing.Size(181, 29);
-            recoverButton.TabIndex = 0;
-            recoverButton.Text = "Recover selected Apps data";
-            recoverButton.UseVisualStyleBackColor = true;
-
-            TabPage Android = new TabPage();
-            Android.Controls.Add(recoverButton);
-            Android.Location = new System.Drawing.Point(4, 22);
-            Android.Name = "Android";
-            Android.Padding = new System.Windows.Forms.Padding(3);
-            Android.Size = new System.Drawing.Size(583, 431);
-            Android.TabIndex = 0;
-            Android.Text = "Android";
-            Android.UseVisualStyleBackColor = true;
-        }
-        #endregion
-
-        
-
-        public string recoverButtonName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public TabPage osTabPage
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public string pluginName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

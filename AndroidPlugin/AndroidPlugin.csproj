@@ -51,16 +51,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DevicePluginLibrary\DevicePluginLibrary\DevicePluginLibrary.csproj">
-      <Project>{3799C720-BD30-4DDB-839B-4FB15D0C5BF7}</Project>
-      <Name>DevicePluginLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AndroidLib-master\AndroidLib\AndroidLib.csproj">
+      <Project>{F5F92F16-C783-4B17-B725-B06F1D725B9C}</Project>
+      <Name>AndroidLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DevicePluginLibrary\PluginLibrary\PluginLibrary.csproj">
+      <Project>{FB73A721-5355-414C-94B8-4B1A4E7D5D6D}</Project>
+      <Name>PluginLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
