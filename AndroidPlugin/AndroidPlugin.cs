@@ -7,16 +7,17 @@ using System.Windows.Forms;
 using RegawMOD.Android;
 using System.Diagnostics;
 using System.Threading;
+using System.IO;
 
 namespace AndroidPlugin
 {
-    public class AndroidPlugin : DeviceRecoveryPluginInterface
+    public class Plugin : DeviceRecoveryPluginInterface
     {
         private AndroidController android;
         private Device device;
         private Thread thread;
 
-        public AndroidPlugin()
+        public Plugin()
         {
             android = AndroidController.Instance;
             DeviceConnect += ConnectingDevice;
@@ -53,21 +54,20 @@ namespace AndroidPlugin
             device = android.GetConnectedDevice();
         }
 
-        public void copyAppsDataBaseFromDevice(Dictionary<string, string> apps, string destination)
+        public void copyAppDataBaseFromDevice(string key, string path, string destination)
         {
-            foreach (string key in apps.Keys)
+            if (!Directory.Exists(destination + key))
             {
-                device.PullFile(apps[key], destination);
-                device.PullFile(apps[key] + "-journal", destination);
-                /*AdbCommand adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, apps[key] });
-                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
-                adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, apps[key] + "-journal" });
-                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
-                adbCmd = Adb.FormAdbCommand(device, "pull", apps[key], destination);
-                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
-                adbCmd = Adb.FormAdbCommand(device, "pull", apps[key]+"-journal", destination);
-                Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));*/
+                Directory.CreateDirectory(destination + key);
             }
+            AdbCommand adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, path });
+            Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
+            adbCmd = Adb.FormAdbShellCommand(device, true, "chmod", new object[] { 777, path + "-journal" });
+            Debug.WriteLine(Adb.ExecuteAdbCommand(adbCmd));
+
+            device.PullFile(path, destination + key);
+            device.PullFile(path + "-journal", destination + key);
+
         }
 
         public bool isDeviceRoot()
@@ -75,6 +75,12 @@ namespace AndroidPlugin
             return device.HasRoot;
         }
 
+
+        public bool isDeviceConnected()
+        {
+            return android.HasConnectedDevices;
+        }
+        
         public bool rootDevice()
         {
             throw new NotImplementedException();
@@ -83,6 +89,11 @@ namespace AndroidPlugin
         public bool unRootDevice()
         {
             throw new NotImplementedException();
+        }
+
+        public void refreshDeviceList()
+        {
+            android.UpdateDeviceList();
         }
     }
 }

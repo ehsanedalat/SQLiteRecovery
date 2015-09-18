@@ -1,0 +1,12 @@
+F:\C# Projects\AndroidPlugin\Test\obj\x86\Debug\Test.csprojResolveAssemblyReference.cache
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\Test.exe
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\Test.pdb
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\AndroidPlugin.dll
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\PluginLibrary.dll
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\AndroidLib.dll
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\PluginLibrary.pdb
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\AndroidPlugin.pdb
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\AndroidLib.pdb
+F:\C# Projects\AndroidPlugin\Test\bin\Debug\AndroidLib.xml
+F:\C# Projects\AndroidPlugin\Test\obj\x86\Debug\Test.exe
+F:\C# Projects\AndroidPlugin\Test\obj\x86\Debug\Test.pdb
