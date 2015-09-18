@@ -16,13 +16,18 @@ namespace SQLiteParser
         private string workSpacePath;
         private string dbFilePath;
         private string dbCopyFilePath;
+        public string sqliteName { get; set; }
 
-        public SQLiteLibrary(string workSpacePath,string dbFilePath)
+        public SQLiteLibrary(string workSpacePath,string dbFilePath,string name)
         {
-            this.workSpacePath = workSpacePath;
-            this.dbFilePath = dbFilePath;
-            parser = new SQLiteParser(dbFilePath);
-            this.dbCopyFilePath = parser.dbCopyFilePath;
+            if (File.Exists(dbFilePath) && Utils.fileSize(dbFilePath) > 0)
+            {
+                this.workSpacePath = workSpacePath;
+                this.dbFilePath = dbFilePath;
+                this.sqliteName = name;
+                parser = new SQLiteParser(dbFilePath);
+                this.dbCopyFilePath = parser.dbCopyFilePath;
+            }
             
         }
         /// <summary>
@@ -32,8 +37,15 @@ namespace SQLiteParser
         /// <returns>Dictionary witch its key is table name and value is ArrayList of records. </returns>
         public Dictionary<string, ArrayList> journalRecovery(string journalFilePath)
         {
-            journalParser = new JournalFileParser(journalFilePath, dbFilePath, workSpacePath);
-            return journalParser.getDeletedRecords();
+            if (File.Exists(journalFilePath) && Utils.fileSize(journalFilePath) > 0)
+            {
+                journalParser = new JournalFileParser(journalFilePath, dbFilePath, workSpacePath);
+                return journalParser.getDeletedRecords();
+            }
+            else
+            {
+                return null;
+            }
         }
         /// <summary>
         /// find deleted records from unallocated space of db.
@@ -41,18 +53,25 @@ namespace SQLiteParser
         /// <returns>Dictinary with table name key and ArrayList of retrieved records as value. each item in ArrayList is string array with length of 3. first item is page number, second one is type(unallocated or freeblock) and third one is data.</returns>
         public Dictionary<string, ArrayList> unAllocatedSpases()
         {
-            Dictionary<string, ArrayList> result = parser.UnAllocatedSpacesParser();
-            /*using (StreamWriter writer = new StreamWriter(File.Open(workSpacePath + "result.txt", FileMode.Create)))
+            if (Utils.fileSize(dbFilePath) > 0)
             {
-
-                foreach (string tableInfo in result.Keys)
+                Dictionary<string, ArrayList> result = parser.UnAllocatedSpacesParser();
+                /*using (StreamWriter writer = new StreamWriter(File.Open(workSpacePath + "result.txt", FileMode.Create)))
                 {
-                    writer.WriteLine("Table #: " + tableInfo);
-                    foreach (string[] item in (ArrayList)result[tableInfo])
-                        writer.WriteLine("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2]);
-                }
-            }*/
-            return result;
+
+                    foreach (string tableInfo in result.Keys)
+                    {
+                        writer.WriteLine("Table #: " + tableInfo);
+                        foreach (string[] item in (ArrayList)result[tableInfo])
+                            writer.WriteLine("page #: " + item[0] + " | type: " + item[1] + " | DATA: " + item[2]);
+                    }
+                }*/
+                return result;
+            }
+            else
+            {
+                return null;
+            }
         }
         /// <summary>
         /// get All records from given table. filter string limit output records.
@@ -61,12 +80,21 @@ namespace SQLiteParser
         /// <param name="filter"></param>
         public DataTable getAllTableRecords(string tableName, string filter)
         {
-           return Utils.getAllTableRecords(dbCopyFilePath, tableName, filter);
+            if (Utils.fileSize(dbFilePath) > 0)
+            {
+                return Utils.getAllTableRecords(dbCopyFilePath, tableName, filter);
+            }
+            else
+                return null;
         }
 
         public ArrayList getAllTableNames()
         {
-            return Utils.getAllTableNames(dbCopyFilePath);
+            if (Utils.fileSize(dbFilePath) > 0)
+            {
+                return Utils.getAllTableNames(dbCopyFilePath);
+            }
+            else return null;
         }
 
         internal void readSMS()

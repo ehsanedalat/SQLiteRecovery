@@ -15,7 +15,8 @@ namespace SQLiteRecovery
 {
     public partial class SqliteRecoveryPage : Form
     {
-        private List<CheckBox> checkedBoxes;
+        private Dictionary<string, ArrayList> appsInfo;
+        
         private Form MainPage;
         private string dbFilePath;
         private string journalFilePath;
@@ -24,12 +25,12 @@ namespace SQLiteRecovery
         private Dictionary<string, ArrayList> unallocatedResult;
         private SQLiteLibrary sqliteLibrary;
 
-        internal SqliteRecoveryPage(List<CheckBox> checkedBoxes, Form MainPage)
+        internal SqliteRecoveryPage(Form MainPage, Dictionary<string, ArrayList> appsInfo)
         {
             FormClosed += new FormClosedEventHandler(mainFrame_onClose);
             InitializeComponent();
 
-            this.checkedBoxes = checkedBoxes;
+            this.appsInfo = appsInfo;
             this.MainPage = MainPage;
 
             BuildingAppsRecoverdDataTabs();
@@ -37,73 +38,75 @@ namespace SQLiteRecovery
 
         internal SqliteRecoveryPage(Form MainPage, string dbFilePath, string journalFilePath)
         {
+            FormClosed += new FormClosedEventHandler(mainFrame_onClose);
             InitializeComponent();
 
             this.MainPage = MainPage;
             
 
-            BuildingRecoverDataTabs(dbFilePath, journalFilePath);
+            BuildingRecoverDataTabs(dbFilePath, journalFilePath,true);
 
 
         }
 
-        private void dbTabsControl_SelectedIndexChanged(Object sender, EventArgs e,SQLiteLibrary sqlite,string dbFilePath,string journalFilePath)
+        private void dbTabsControl_SelectedIndexChanged(Object sender, EventArgs e)
         {
             string tabName = ((TabControl)sender).SelectedTab.Name;
+            sqliteLibrary = (SQLiteLibrary)((ArrayList)tabsPointers[tabName])[1];
+            this.dbFilePath = (string)((ArrayList)tabsPointers[tabName])[2];
+            this.journalFilePath = (string)((ArrayList)tabsPointers[tabName])[3];
 
-            if (tabsPointers.ContainsKey(tabName))
+            if ((bool)((ArrayList)tabsPointers[tabName])[0])
             {
-                sqliteLibrary = (SQLiteLibrary)((ArrayList) tabsPointers[tabName])[0];
-                unallocatedResult = (Dictionary<string,ArrayList>)((ArrayList)tabsPointers[tabName])[1];
-                journalResult = (Dictionary<string, ArrayList>)((ArrayList)tabsPointers[tabName])[2];
-                this.dbFilePath = (string)((ArrayList)tabsPointers[tabName])[3];
-                this.journalFilePath = (string)((ArrayList)tabsPointers[tabName])[4];
+                unallocatedResult = (Dictionary<string,ArrayList>)((ArrayList)tabsPointers[tabName])[4];
+                journalResult = (Dictionary<string, ArrayList>)((ArrayList)tabsPointers[tabName])[5];
+                
             }
             else
             {
-                ArrayList item = new ArrayList();
-                sqliteLibrary = sqlite;
-                item.Add(sqlite);
-                unallocatedResult = sqlite.unAllocatedSpases();
+                ArrayList item = (ArrayList)tabsPointers[tabName];
+                
+                unallocatedResult = sqliteLibrary.unAllocatedSpases();
                 item.Add(unallocatedResult);
-                if (!string.IsNullOrEmpty(journalFilePath))
+                if (!string.IsNullOrEmpty(this.journalFilePath))
                 {
-                    journalResult = sqlite.journalRecovery(journalFilePath);
+                    journalResult = sqliteLibrary.journalRecovery(this.journalFilePath);
                     item.Add(journalResult);
                 }
                 else
                 {
                     item.Add(null);
                 }
-                item.Add(dbFilePath);
-                item.Add(journalFilePath);
 
-                this.dbFilePath = dbFilePath;
-                this.journalFilePath = journalFilePath;
-
-                tabsPointers.Add(tabName, item);
+                tabsPointers[tabName][0] = true;
             }
         }
 
-        private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath)
+        private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath, bool first)
         {
             string tabName = dbFilePath.Substring(dbFilePath.LastIndexOf(@"\")).Replace(@"\", "");
             SQLiteLibrary sqlite = buildSqliteConnection(dbFilePath, tabName);
             TabPage tab = BuildNewTabForDBData(tabName, sqlite.getAllTableNames());
-            this.dbTabsControl.SelectedIndexChanged += new EventHandler((send, eventHandler) => dbTabsControl_SelectedIndexChanged(send, eventHandler, sqlite, dbFilePath, journalFilePath));
+            ArrayList items=new ArrayList();
+            items.Add(false);
+            items.Add(sqlite);
+            items.Add(dbFilePath);
+            items.Add(journalFilePath);
+            tabsPointers.Add(tabName, items);
+            this.dbTabsControl.SelectedIndexChanged += new EventHandler(dbTabsControl_SelectedIndexChanged);
             this.dbTabsControl.Controls.Add(tab);
-            dbTabsControl_SelectedIndexChanged(dbTabsControl,null, sqlite, dbFilePath,journalFilePath);
+            if(first)
+                dbTabsControl_SelectedIndexChanged(dbTabsControl,null);
             
         }
 
         private void BuildingAppsRecoverdDataTabs()
         {
-            foreach (CheckBox checkbox in checkedBoxes)
+            bool first=true;
+            foreach (string key in appsInfo.Keys)
             {
-                //TODO FILE AND JOURNAL PATH
-                //recoverDataFromDB(checkbox.Name);
-                //TabPage tab = BuildNewTabForDBData(checkbox.Name);
-                //this.tabsControl.Controls.Add(tab);
+               BuildingRecoverDataTabs((string)((ArrayList)appsInfo[key])[0], (string)((ArrayList)appsInfo[key])[1], first);
+               first = false;
             }
         }
 
@@ -279,7 +282,7 @@ namespace SQLiteRecovery
 
             //Unallocated and freeblock records...
 
-            if (unallocatedResult.ContainsKey(table))
+            if (unallocatedResult.ContainsKey(table)&&unallocatedResult!=null)
             {
                 int WIDTH = 100;
                 ArrayList result = unallocatedResult[table];
@@ -373,15 +376,16 @@ namespace SQLiteRecovery
             // All current records...
 
             DataTable tableRecords = sqliteLibrary.getAllTableRecords(table, filter);
-            // 
-            // currentRecords
-            // 
-            
-            if (current.Controls.ContainsKey("currentRecords"))
+            if (tableRecords != null)
             {
-                current.Controls.RemoveByKey("currentRecords");   
-            }
-            DataGridView records = new DataGridView();
+                if (current.Controls.ContainsKey("currentRecords"))
+                {
+                    current.Controls.RemoveByKey("currentRecords");
+                }
+                // 
+                // currentRecords
+                // 
+                DataGridView records = new DataGridView();
                 records.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -391,16 +395,17 @@ namespace SQLiteRecovery
                 records.Size = new System.Drawing.Size(current.Width - 10, current.Height - 10);
                 records.TabIndex = 0;
                 records.AutoGenerateColumns = true;
-            
-            records.DataSource = tableRecords;
-            records.DataError += new DataGridViewDataErrorEventHandler(records_DataError);
-            records.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
 
-            current.Controls.Add(records);
-            disableEditing(records);
+                records.DataSource = tableRecords;
+                records.DataError += new DataGridViewDataErrorEventHandler(records_DataError);
+                records.CellDoubleClick += new DataGridViewCellEventHandler(DataGridView1_CellDoubleClick);
+
+                current.Controls.Add(records);
+                disableEditing(records);
+            }
             //journal records...
 
-            if (!String.IsNullOrEmpty(journalFilePath))
+            if (!String.IsNullOrEmpty(journalFilePath)&&journalResult!=null)
             {
 
                 if (journalResult.ContainsKey(table))
@@ -535,18 +540,18 @@ namespace SQLiteRecovery
 
         private SQLiteLibrary buildSqliteConnection(string dbFilePath, string dbName)
         {
-            dbName = dbName.Split(new char[] { '.' })[0];
+            string dbDirName = dbName.Split(new char[] { '.' })[0];
 
-            SQLiteLibrary sqlite = new SQLiteLibrary(@"..\workspace\"+dbName, dbFilePath);
+            SQLiteLibrary sqlite = new SQLiteLibrary(@"..\workspace\" + dbDirName, dbFilePath, dbName);
             
             return sqlite;
         }
 
         private void back_button_Click(object sender, EventArgs e)
         {
+            tabsPointers.Clear();
             this.Hide();
             MainPage.Show();
-            //TODO BACK BUTTON EXCEPTION!!!
         }
 
         private void mainFrame_onClose(object sender, FormClosedEventArgs e)

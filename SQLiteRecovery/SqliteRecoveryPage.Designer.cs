@@ -78,7 +78,7 @@
             this.Controls.Add(this.Back_button);
             this.HelpButton = true;
             this.Name = "SqliteRecoveryPage";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SqliteRecoveryPage";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.mainFrame_onClose);
             this.groupBox1.ResumeLayout(false);

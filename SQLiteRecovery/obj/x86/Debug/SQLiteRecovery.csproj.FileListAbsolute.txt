@@ -40,3 +40,4 @@ F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.S
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.csproj.GenerateResource.Cache
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.exe
 F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.pdb
+F:\C# Projects\DevicePluginLibrary\SQLiteRecovery\obj\x86\Debug\SQLiteRecovery.CopyFilesProgress.resources

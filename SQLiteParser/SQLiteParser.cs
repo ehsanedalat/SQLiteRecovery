@@ -37,7 +37,7 @@ namespace SQLiteParser
         {
             this.dbFilePath = dbFilePath;
             this.UnallocatedSpaceDeletedRecords = new ArrayList();
-            
+
             init();
 
         }
@@ -603,21 +603,24 @@ namespace SQLiteParser
         private string rollbackedFile;
         private Dictionary<string, ArrayList> records;
 
-        internal JournalFileParser(string journalFilePath,string dbFilePath,string workSpacePath)
+        internal JournalFileParser(string journalFilePath, string dbFilePath, string workSpacePath)
         {
+
             this.journalFilePath = journalFilePath;
             this.dbFilePath = dbFilePath;
             this.path = workSpacePath;
-            rollbackedFile = workSpacePath  + @"\rollBackedFile";
+            rollbackedFile = workSpacePath + @"\rollBackedFile";
             if (!Directory.Exists(workSpacePath))
             {
                 Directory.CreateDirectory(workSpacePath);
             }
+
             init();
 
             fillBackupPages();
 
             records = findDeletedRecords();
+
         }
 
         internal Dictionary<string, ArrayList> getDeletedRecords()

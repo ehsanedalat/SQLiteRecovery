@@ -11,16 +11,20 @@ using System.Diagnostics;
 using PluginGenerator;
 using MySQLLibrary;
 using System.IO;
+using System.Collections;
+using System.Reflection;
 
 namespace SQLiteRecovery
 {
     public partial class MainUI : Form
     {
-        private ICollection<DeviceRecoveryPluginInterface> plugins;
+        private object plugin;
+        private static string storedDBsPath = @"..\Databases\";
         private Dictionary<string, Dictionary<string, string>> tabs;
         private SQLUtils utils;
         private string DBFilePath;
         private string journalFilePath;
+        private ErrorProvider error;
         public string updatedTab { get; set; }
         /// <summary>
         /// constructor
@@ -28,11 +32,10 @@ namespace SQLiteRecovery
         public MainUI()
         {
             InitializeComponent();
-            
-            //plugins = PluginServices.LoadPlugins("Plugins");
-
+            error = new ErrorProvider();
             utils = new SQLUtils("sqlite_recovery_plugins");
-
+            
+            storedDBsPath = Path.GetFullPath(storedDBsPath);
             tabs=new Dictionary<string,Dictionary<string,string>>();
             getPluginData();
             OSTabsControl.SelectedIndexChanged += new EventHandler(OSTabsControl_SelectedIndexChanged);
@@ -50,7 +53,48 @@ namespace SQLiteRecovery
             {
                 editButton.Enabled = true;
                 deleteButton.Enabled = true;
+                string assamblyPath = OSTabsControl.SelectedTab.Controls["dllAddressLabel"].Text;
+                if(!isAssemblyLoaded(assamblyPath))
+                    plugin = PluginServices.loadPlugin(assamblyPath);
+                string status = "";
+                if (PluginServices.isDeviceConnected(plugin))
+                {
+                    if (PluginServices.isDeviceRoot(plugin))
+                    {
+                        status = "Root";
+                    }
+                    else
+                    {
+                        status = "not Root";
+                    }
+                }
+                else
+                {
+                    status = "Offline";
+                }
+                Button statusButton=(Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
+                OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
+                if (status == "Offline")
+                    statusButton.Text = "Refresh";
+                else if (status == "not Root")
+                    statusButton.Text = "Root";
+                else
+                    statusButton.Visible = false;
             }
+        }
+        private bool isAssemblyLoaded(string location)
+        {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            foreach (Assembly assembly in assemblies)
+            {
+                if (assembly.Location == location)
+                {        
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         
@@ -151,7 +195,7 @@ namespace SQLiteRecovery
             // 
             groupBox2.Controls.Add(appsPannel);
             groupBox2.Location = new System.Drawing.Point(4, 52);
-            groupBox2.Name = "groupBox2";
+            groupBox2.Name = "appsGroupBox";
             groupBox2.Size = new System.Drawing.Size(576, 225);
             groupBox2.TabIndex = 4;
             groupBox2.TabStop = false;
@@ -178,6 +222,7 @@ namespace SQLiteRecovery
                 checkBox1.TabIndex = 0;
                 checkBox1.Text = appsData[i]["name"];
                 checkBox1.UseVisualStyleBackColor = true;
+                checkBox1.CheckStateChanged += new EventHandler(checkBox1_CheckStateChanged);
                 appsPannel.Controls.Add(checkBox1);
                 item.Add(appsData[i]["name"], appsData[i]["path"]);
             }
@@ -188,11 +233,11 @@ namespace SQLiteRecovery
             groupBox3.Controls.Add(rootLabel);
             groupBox3.Controls.Add(label3);
             groupBox3.Location = new System.Drawing.Point(4, 279);
-            groupBox3.Name = "groupBox2";
+            groupBox3.Name = "statusGroupBox";
             groupBox3.Size = new System.Drawing.Size(576, 68);
             groupBox3.TabIndex = 0;
             groupBox3.TabStop = false;
-            groupBox3.Text = "Root Condition";
+            groupBox3.Text = "Device Status";
             // 
             // label1
             // 
@@ -201,25 +246,26 @@ namespace SQLiteRecovery
             label3.Name = "label1";
             label3.Size = new System.Drawing.Size(75, 13);
             label3.TabIndex = 0;
-            label3.Text = "This device is ";
+            label3.Text = "Status: ";
+            
             // 
             // rootLabel
             // 
             rootLabel.AutoSize = true;
             rootLabel.Location = new System.Drawing.Point(80, 32);
-            rootLabel.Name = "rootLabel";
+            rootLabel.Name = "statusLabel";
             rootLabel.Size = new System.Drawing.Size(38, 13);
             rootLabel.TabIndex = 1;
-            rootLabel.Text = "ROOT";
+            rootLabel.Text = ".";
             // 
             // rootButton
             // 
             rootButton.Location = new System.Drawing.Point(156, 27);
-            rootButton.Name = "rootButton";
+            rootButton.Name = "statusButton";
             rootButton.Size = new System.Drawing.Size(104, 23);
             rootButton.TabIndex = 2;
-            rootButton.Text = "UnRoot";
             rootButton.UseVisualStyleBackColor = true;
+            rootButton.Click += new EventHandler(rootButton_Click);
             // 
             // recoverButton
             // 
@@ -236,23 +282,123 @@ namespace SQLiteRecovery
             appsData.Clear();
         }
 
-        private void recoverButtonPlugin_Click(object sender, EventArgs e, Dictionary<string,string> apps)
+        void checkBox1_CheckStateChanged(object sender, EventArgs e)
         {
-
+            error.Clear();
         }
 
-        /// <summary>
-        /// listener for each tab page, adding to main UI
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="tabPage"> tab page, created in each plugin</param>
-        void recoverOnClickListener(object sender, EventArgs e, TabPage tabPage)
+        void rootButton_Click(object sender, EventArgs e)
         {
-            var checkedBoxes = tabPage.Controls.OfType<CheckBox>().Where(c => c.Checked).ToList<CheckBox>();
-            SqliteRecoveryPage page = new SqliteRecoveryPage(checkedBoxes, this);
-            page.Show();
-            this.Hide();
+            string status = ((Button)sender).Text;
+            if (status == "Refresh")
+            {
+                if (PluginServices.isDeviceConnected(plugin))
+                {
+                    if (PluginServices.isDeviceRoot(plugin))
+                    {
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Root";
+                    }
+                    else
+                    {
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Root";
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "not Root";
+                    }
+                }
+            }
+            else
+            {
+                if (PluginServices.isDeviceConnected(plugin))
+                {
+                    if (PluginServices.isDeviceRoot(plugin))
+                    {
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
+                        OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Root";
+                    }
+                    else
+                    {
+                        if (PluginServices.rootDevice(plugin))
+                        {
+                            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
+                            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Root";
+                        }
+                        else
+                        {
+                            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Root";
+                            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "not Root";
+                            PluginServices.refreshDeviceList(plugin);
+                        }
+                    }
+                }
+                else
+                {
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Offline";
+                    PluginServices.refreshDeviceList(plugin);
+                }
+            }
+        }
+
+        private void recoverButtonPlugin_Click(object sender, EventArgs e, Dictionary<string,string> apps)
+        {
+            ArrayList checkedApps = getAppChecked();
+            error.Clear();
+            if (checkedApps.Count > 0 && PluginServices.isDeviceConnected(plugin) && PluginServices.isDeviceRoot(plugin))
+            {
+                Dictionary<string, string> temp = new Dictionary<string, string>();
+                Dictionary<string, ArrayList> appsInfo = new Dictionary<string, ArrayList>();
+                foreach (string name in checkedApps)
+                {
+                    string n = name.Split(new char[] { '_' })[0];
+                    temp.Add(n, apps[n]);
+                    if (apps[n].Contains(@"\"))
+                        apps[n] = apps[n].Replace(@"\", "/");
+                    string path=storedDBsPath+n+@"\"+apps[n].Substring(apps[n].LastIndexOf("/")).Replace("/", "");
+                    string journalPath=path+"-journal";
+                    ArrayList pathes=new ArrayList();
+                    pathes.Add(path);
+                    pathes.Add(journalPath);
+                    appsInfo.Add(n, pathes);
+                }
+                
+                CopyFilesProgress copy = new CopyFilesProgress(this, temp, plugin, storedDBsPath,appsInfo);
+                copy.Show();
+                this.Hide();
+                
+            }
+            else
+            {
+                if (checkedApps.Count == 0)
+                {
+                    error.SetError(OSTabsControl.SelectedTab.Controls["appsGroupBox"].Controls["appsPannel"].Controls[0], "Please select at least one app!!");
+                    
+                }
+                if (!PluginServices.isDeviceConnected(plugin))
+                {
+                    MessageBox.Show("Please connect your device!!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Offline";
+                    PluginServices.refreshDeviceList(plugin);
+                }
+                else if (!PluginServices.isDeviceRoot(plugin))
+                {
+                    MessageBox.Show("Connected device has not root access. please root your device!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+        private ArrayList getAppChecked()
+        {
+            CheckBox[] apps = OSTabsControl.SelectedTab.Controls["appsGroupBox"].Controls["appsPannel"].Controls.OfType<CheckBox>().ToArray();
+            ArrayList result = new ArrayList();
+            foreach (CheckBox box in apps)
+                if (box.Checked)
+                    result.Add(box.Name);
+            return result;
         }
 
         private void generatePluginButton_Click(object sender, EventArgs e)
@@ -364,7 +510,6 @@ namespace SQLiteRecovery
             }
             else
             {
-                ErrorProvider error = new ErrorProvider();
                 error.SetError(DBFileTextBox, "Empty Box !!");
             }
         }
@@ -372,6 +517,7 @@ namespace SQLiteRecovery
         private void DBFileTextBox_TextChanged(object sender, EventArgs e)
         {
             DBFilePath = DBFileTextBox.Text;
+            error.Clear();
         }
         
     }

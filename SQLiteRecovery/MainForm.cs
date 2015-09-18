@@ -52,8 +52,8 @@ namespace PluginGenerator
             }
             else
             {
-                apps.Add("SMS", "/data/data/");
-                apps.Add("Browser", "/data/data/");
+                apps.Add("SMS", "/data/data/com.android.providers.telephony/databases/mmssms.db");
+                apps.Add("Contacts", "/data/data/com.android.providers.contacts/databases/contacts2.db");
             }
 
             updateAppsCheckBoxes();

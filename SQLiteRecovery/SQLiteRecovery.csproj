@@ -67,6 +67,12 @@
     <Compile Include="Apps and pathes.designer.cs">
       <DependentUpon>Apps and pathes.cs</DependentUpon>
     </Compile>
+    <Compile Include="CopyFilesProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CopyFilesProgress.Designer.cs">
+      <DependentUpon>CopyFilesProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="DatabaseDataSet.cs">
       <DependentUpon>DatabaseDataSet.xsd</DependentUpon>
       <SubType>Component</SubType>
@@ -106,6 +112,9 @@
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Apps and pathes.resx">
       <DependentUpon>Apps and pathes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CopyFilesProgress.resx">
+      <DependentUpon>CopyFilesProgress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
