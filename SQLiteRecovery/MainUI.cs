@@ -388,6 +388,9 @@ namespace SQLiteRecovery
                 else if (!PluginServices.isDeviceRoot(plugin))
                 {
                     MessageBox.Show("Connected device has not root access. please root your device!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Root";
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "not Root";
                 }
             }
         }
@@ -454,7 +457,7 @@ namespace SQLiteRecovery
         {
             var confirmResult = MessageBox.Show("Are you sure, you want delete this plugin(" + OSTabsControl.SelectedTab.Name + ") ??",
                                      "Delete Confirmation !!",
-                                     MessageBoxButtons.YesNo);
+                                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirmResult == DialogResult.Yes)
             {
                 if (OSTabsControl.TabCount > 0)
