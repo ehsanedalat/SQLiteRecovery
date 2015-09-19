@@ -25,6 +25,7 @@ namespace SQLiteRecovery
         private string DBFilePath;
         private string journalFilePath;
         private ErrorProvider error;
+        private string assemblyPath;
         public string updatedTab { get; set; }
         /// <summary>
         /// constructor
@@ -53,34 +54,89 @@ namespace SQLiteRecovery
             {
                 editButton.Enabled = true;
                 deleteButton.Enabled = true;
-                string assamblyPath = OSTabsControl.SelectedTab.Controls["dllAddressLabel"].Text;
-                if(!isAssemblyLoaded(assamblyPath))
-                    plugin = PluginServices.loadPlugin(assamblyPath);
-                string status = "";
-                if (PluginServices.isDeviceConnected(plugin))
+                assemblyPath = OSTabsControl.SelectedTab.Controls["dllAddressLabel"].Text;
+                if (!isAssemblyLoaded(assemblyPath))
                 {
-                    if (PluginServices.isDeviceRoot(plugin))
+                    BackgroundWorker assemblyWorker = new BackgroundWorker();
+                    assemblyWorker.WorkerReportsProgress = true;
+                    assemblyWorker.DoWork += new DoWorkEventHandler(assemblyWorker_DoWork);
+                    assemblyWorker.ProgressChanged += new ProgressChangedEventHandler(assemblyWorker_ProgressChanged);
+                    assemblyWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(assemblyWorker_RunWorkerCompleted);
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Loading plugin...";
+                    ((Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"]).Visible = false;
+                    ((Button)OSTabsControl.SelectedTab.Controls["recoverButton"]).Enabled = false;
+                    if (assemblyWorker.IsBusy == false)
+                        assemblyWorker.RunWorkerAsync();
+                }
+                else
+                {
+
+                    string status = "";
+                    if (PluginServices.isDeviceConnected(plugin))
                     {
-                        status = "Root";
+                        if (PluginServices.isDeviceRoot(plugin))
+                        {
+                            status = "Root";
+                        }
+                        else
+                        {
+                            status = "not Root";
+                        }
                     }
                     else
                     {
-                        status = "not Root";
+                        status = "Offline";
                     }
+                    Button statusButton = (Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
+                    if (status == "Offline")
+                        statusButton.Text = "Refresh";
+                    else if (status == "not Root")
+                        statusButton.Text = "Root";
+                    else
+                        statusButton.Visible = false;
+                }
+            }
+        }
+
+        void assemblyWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            ((Button)OSTabsControl.SelectedTab.Controls["recoverButton"]).Enabled = true;
+        }
+
+        void assemblyWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            string status = "";
+            if (PluginServices.isDeviceConnected(plugin))
+            {
+                if (PluginServices.isDeviceRoot(plugin))
+                {
+                    status = "Root";
                 }
                 else
                 {
-                    status = "Offline";
+                    status = "not Root";
                 }
-                Button statusButton=(Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
-                OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
-                if (status == "Offline")
-                    statusButton.Text = "Refresh";
-                else if (status == "not Root")
-                    statusButton.Text = "Root";
-                else
-                    statusButton.Visible = false;
             }
+            else
+            {
+                status = "Offline";
+            }
+            Button statusButton = (Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
+            OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
+            if (status == "Offline")
+                statusButton.Text = "Refresh";
+            else if (status == "not Root")
+                statusButton.Text = "Root";
+            else
+                statusButton.Visible = false;
+        }
+
+        void assemblyWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            plugin = PluginServices.loadPlugin(assemblyPath);
+            ((BackgroundWorker)sender).ReportProgress(100);
+
         }
         private bool isAssemblyLoaded(string location)
         {
@@ -362,6 +418,8 @@ namespace SQLiteRecovery
                     ArrayList pathes=new ArrayList();
                     pathes.Add(path);
                     pathes.Add(journalPath);
+                    //pathes.Add(path + "-shm");
+                    //pathes.Add(path + "-wal");
                     appsInfo.Add(n, pathes);
                 }
                 

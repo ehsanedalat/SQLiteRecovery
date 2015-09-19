@@ -21,11 +21,12 @@ namespace SQLiteRecovery
         private MainUI parent;
         private Dictionary<string, ArrayList> appsInfo;
         private bool last;
+        private string currentFile;
 
         public CopyFilesProgress(MainUI parent, Dictionary<string,string> apps,object plugin,string distination, Dictionary<string, ArrayList> appsInfo)
         {
             InitializeComponent();
-            status.Text = "0 file(s) copied of " + apps.Count;
+            //status.Text = "0 file(s) copied of " + apps.Count;
 
             this.parent = parent;
             this.apps = apps;
@@ -47,6 +48,7 @@ namespace SQLiteRecovery
                     e.Cancel = true;
                     return;
                 }
+                currentFile = key;
                 PluginServices.copyAppDataBaseFromDevice(plugin, key, apps[key], distination);
                 index++;
                 if (index == apps.Count)
@@ -60,10 +62,7 @@ namespace SQLiteRecovery
         {
             progressBar1.Value = e.ProgressPercentage;
             status.Text = e.ProgressPercentage.ToString()+"%";
-            if (e.ProgressPercentage == 100)
-            {
-                
-            }
+            copy.Text = currentFile+" copied.";
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

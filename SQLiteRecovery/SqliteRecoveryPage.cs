@@ -24,6 +24,7 @@ namespace SQLiteRecovery
         private Dictionary<string, ArrayList> journalResult;
         private Dictionary<string, ArrayList> unallocatedResult;
         private SQLiteLibrary sqliteLibrary;
+        private Button showButton;
 
         internal SqliteRecoveryPage(Form MainPage, Dictionary<string, ArrayList> appsInfo)
         {
@@ -64,22 +65,46 @@ namespace SQLiteRecovery
             }
             else
             {
-                ArrayList item = (ArrayList)tabsPointers[tabName];
-                
-                unallocatedResult = sqliteLibrary.unAllocatedSpases();
-                item.Add(unallocatedResult);
-                if (!string.IsNullOrEmpty(this.journalFilePath))
-                {
-                    journalResult = sqliteLibrary.journalRecovery(this.journalFilePath);
-                    item.Add(journalResult);
-                }
-                else
-                {
-                    item.Add(null);
-                }
+                showButton = (Button)((TabControl)sender).SelectedTab.Controls["propertisesGroupBox"].Controls["showButton"];
+                showButton.Enabled = false;
+                BackgroundWorker worker = new BackgroundWorker();
+                worker.WorkerReportsProgress = true;
+                worker.DoWork +=new DoWorkEventHandler(worker_DoWork);
+                worker.ProgressChanged +=new ProgressChangedEventHandler(worker_ProgressChanged);
+                worker.RunWorkerCompleted +=new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
+                if(worker.IsBusy==false)
+                    worker.RunWorkerAsync((ArrayList)tabsPointers[tabName]);
 
-                tabsPointers[tabName][0] = true;
             }
+        }
+
+        void  worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+ 	        
+        }
+
+        void  worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+           showButton.Enabled = true;
+        }
+
+        void  worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            ArrayList item = e.Argument as ArrayList;
+            unallocatedResult = sqliteLibrary.unAllocatedSpases();
+            item.Add(unallocatedResult);
+            if (!string.IsNullOrEmpty(this.journalFilePath))
+            {
+                journalResult = sqliteLibrary.journalRecovery(this.journalFilePath);
+                item.Add(journalResult);
+            }
+            else
+            {
+                item.Add(null);
+            }
+
+            item[0] = true;
+            ((BackgroundWorker)sender).ReportProgress(100);
         }
 
         private void BuildingRecoverDataTabs(string dbFilePath, string journalFilePath, bool first)
