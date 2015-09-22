@@ -54,6 +54,17 @@ namespace PluginGenerator
             {
                 apps.Add("SMS", "/data/data/com.android.providers.telephony/databases/mmssms.db");
                 apps.Add("Contacts", "/data/data/com.android.providers.contacts/databases/contacts2.db");
+                apps.Add("Downloads", "/data/data/com.android.providers.downloads/databases/downloads.db");
+                apps.Add("Media-internal", "/data/data/com.android.providers.media/databases/internal.db");
+                apps.Add("Media-external", "/data/data/com.android.providers.media/databases/external-e15a07e6.db");
+                apps.Add("Calendar", "/data/data/com.android.providers.calendar/databases/calendar.db");
+                apps.Add("Maps", "/data/data/com.google.android.apps.maps/databases/search_history.db");
+                apps.Add("Emails", "/data/data/com.android.email/databases/EmailProvider.db");
+                apps.Add("Emails-backup", "/data/data/com.android.email/databases/EmailProviderBackup.db");
+                apps.Add("Emails-body", "/data/data/com.android.email/databases/EmailProviderBody.db");
+                apps.Add("Browser-autofill", "/data/data/com.android.browser/databases/autofill.db");
+                apps.Add("Browser", "/data/data/com.android.browser/databases/browser2.db");
+                apps.Add("Browser-webview", "/data/data/com.android.browser/databases/webview.db");
             }
 
             updateAppsCheckBoxes();

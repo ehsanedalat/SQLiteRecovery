@@ -90,11 +90,18 @@ namespace SQLiteRecovery
                     Button statusButton = (Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
                     OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
                     if (status == "Offline")
+                    {
                         statusButton.Text = "Refresh";
+                        statusButton.Visible = false;
+                    }
                     else if (status == "not Root")
+                    {
                         statusButton.Text = "Root";
+                        statusButton.Visible = true;
+                    }
                     else
                         statusButton.Visible = false;
+                    ((Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["refreshButton"]).Visible = true;
                 }
             }
         }
@@ -125,11 +132,18 @@ namespace SQLiteRecovery
             Button statusButton = (Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"];
             OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = status;
             if (status == "Offline")
+            {
                 statusButton.Text = "Refresh";
+                statusButton.Visible = false;
+            }
             else if (status == "not Root")
+            {
                 statusButton.Text = "Root";
+                statusButton.Visible = true;
+            }
             else
                 statusButton.Visible = false;
+            ((Button)OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["refreshButton"]).Visible = true;
         }
 
         void assemblyWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -183,6 +197,7 @@ namespace SQLiteRecovery
             // 
             Button recoverButton = new Button();
             Button rootButton = new Button();
+            Button refreshButton = new Button();
             GroupBox groupBox2=new GroupBox();
             GroupBox groupBox3 = new GroupBox();
             Label dllAddressLabel = new Label();
@@ -286,6 +301,7 @@ namespace SQLiteRecovery
             // groupBox3
             // 
             groupBox3.Controls.Add(rootButton);
+            groupBox3.Controls.Add(refreshButton);
             groupBox3.Controls.Add(rootLabel);
             groupBox3.Controls.Add(label3);
             groupBox3.Location = new System.Drawing.Point(4, 279);
@@ -323,6 +339,17 @@ namespace SQLiteRecovery
             rootButton.UseVisualStyleBackColor = true;
             rootButton.Click += new EventHandler(rootButton_Click);
             // 
+            // refreshButton
+            // 
+            refreshButton.Location = new System.Drawing.Point(356, 27);
+            refreshButton.Name = "refreshButton";
+            refreshButton.Size = new System.Drawing.Size(104, 23);
+            refreshButton.TabIndex = 2;
+            refreshButton.UseVisualStyleBackColor = true;
+            refreshButton.Text = "Refresh";
+            refreshButton.Click += new EventHandler(refreshButton_Click);
+            refreshButton.Visible = false;
+            // 
             // recoverButton
             // 
             recoverButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -336,6 +363,30 @@ namespace SQLiteRecovery
 
             OSTabsControl.Controls.Add(tabPage);
             appsData.Clear();
+        }
+
+        void refreshButton_Click(object sender, EventArgs e)
+        {
+            if (PluginServices.isDeviceConnected(plugin))
+            {
+                if (PluginServices.isDeviceRoot(plugin))
+                {
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Root";
+                }
+                else
+                {
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Root";
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "not Root";
+                }
+            }
+            else
+            {
+                OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
+                OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
+                OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Offline";
+            }
         }
 
         void checkBox1_CheckStateChanged(object sender, EventArgs e)
@@ -375,7 +426,9 @@ namespace SQLiteRecovery
                     }
                     else
                     {
-                        if (PluginServices.rootDevice(plugin))
+                        RootPanel rootPanel = new RootPanel(plugin);
+                        rootPanel.Show();
+                        /*if (PluginServices.rootDevice(plugin))
                         {
                             OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
                             OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Root";
@@ -386,12 +439,12 @@ namespace SQLiteRecovery
                             OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Root";
                             OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "not Root";
                             PluginServices.refreshDeviceList(plugin);
-                        }
+                        }*/
                     }
                 }
                 else
                 {
-                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
                     OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
                     OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Offline";
                     PluginServices.refreshDeviceList(plugin);
@@ -438,7 +491,7 @@ namespace SQLiteRecovery
                 if (!PluginServices.isDeviceConnected(plugin))
                 {
                     MessageBox.Show("Please connect your device!!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = true;
+                    OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Visible = false;
                     OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusButton"].Text = "Refresh";
                     OSTabsControl.SelectedTab.Controls["statusGroupBox"].Controls["statusLabel"].Text = "Offline";
                     PluginServices.refreshDeviceList(plugin);

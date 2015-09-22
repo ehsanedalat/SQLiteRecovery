@@ -19,5 +19,7 @@ namespace DevicePluginInterface
         bool isDeviceConnected();
 
         void refreshDeviceList();
+
+        bool installApp(string path);
     }
 }

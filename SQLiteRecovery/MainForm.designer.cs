@@ -30,7 +30,6 @@
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.edit_button = new System.Windows.Forms.Button();
-            this.checkBoxPanel = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.osComboBox = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -42,6 +41,7 @@
             this.solutionDialog = new System.Windows.Forms.OpenFileDialog();
             this.build_button = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.checkBoxPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -49,8 +49,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.edit_button);
             this.groupBox1.Controls.Add(this.checkBoxPanel);
+            this.groupBox1.Controls.Add(this.edit_button);
             this.groupBox1.Location = new System.Drawing.Point(12, 105);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(551, 167);
@@ -67,14 +67,6 @@
             this.edit_button.Text = "Edit Apps";
             this.edit_button.UseVisualStyleBackColor = true;
             this.edit_button.Click += new System.EventHandler(this.edit_button_Click);
-            // 
-            // checkBoxPanel
-            // 
-            this.checkBoxPanel.AutoScroll = true;
-            this.checkBoxPanel.Location = new System.Drawing.Point(6, 19);
-            this.checkBoxPanel.Name = "checkBoxPanel";
-            this.checkBoxPanel.Size = new System.Drawing.Size(422, 142);
-            this.checkBoxPanel.TabIndex = 0;
             // 
             // groupBox2
             // 
@@ -181,6 +173,13 @@
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
+            // checkBoxPanel
+            // 
+            this.checkBoxPanel.Location = new System.Drawing.Point(6, 19);
+            this.checkBoxPanel.Name = "checkBoxPanel";
+            this.checkBoxPanel.Size = new System.Drawing.Size(437, 142);
+            this.checkBoxPanel.TabIndex = 9;
+            // 
             // MainFormPluginGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -208,7 +207,6 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Panel checkBoxPanel;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TextBox pluginNameTextBox;
         private System.Windows.Forms.Label label1;
@@ -221,5 +219,6 @@
         private System.Windows.Forms.OpenFileDialog solutionDialog;
         private System.Windows.Forms.Button build_button;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.FlowLayoutPanel checkBoxPanel;
     }
 }

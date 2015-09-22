@@ -81,5 +81,12 @@ namespace SQLiteRecovery
             MethodInfo copyMethod = pluginType.GetMethod("refreshDeviceList");
             copyMethod.Invoke(plugin, null);
         }
+
+        internal static bool installApp(object plugin, string path)
+        {
+            Type pluginType = typeof(DeviceRecoveryPluginInterface);
+            MethodInfo copyMethod = pluginType.GetMethod("installApp");
+            return (bool)copyMethod.Invoke(plugin, new object[] { path });
+        }
     }
 }

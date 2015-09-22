@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteRecovery", "SQLiteRecovery\SQLiteRecovery.csproj", "{9518C646-1DD2-4E88-BC3F-E4BA134690BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UI", "SQLiteRecovery\UI.csproj", "{9518C646-1DD2-4E88-BC3F-E4BA134690BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQL", "MySQL\MySQL.csproj", "{85300A61-D2A4-4693-B738-AA4051341248}"
 EndProject
