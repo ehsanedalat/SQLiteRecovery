@@ -13,6 +13,7 @@ namespace SQLiteParser
     {
         private SQLiteParser parser;
         private JournalFileParser journalParser;
+        private WALFileParser walParser;
         private string workSpacePath;
         private string dbFilePath;
         private string dbCopyFilePath;
@@ -30,6 +31,23 @@ namespace SQLiteParser
             }
             
         }
+        /// <summary>
+        /// recover deleted or updated records from WAL file.
+        /// </summary>
+        /// <param name="walFilePath">file Address of WAL file.</param>
+        /// <returns>Dictionary witch its key is table name and value is ArrayList of records. </returns>
+        /*public Dictionary<string, ArrayList> walRecovery(string walFilePath)
+        {
+            if (File.Exists(walFilePath) && Utils.fileSize(walFilePath) > 0)
+            {
+                walParser = new WALFileParser(walFilePath, dbFilePath, workSpacePath);
+                return walParser.getDeletedRecords();
+            }
+            else
+            {
+                return null;
+            }
+        }*/
         /// <summary>
         /// recover deleted or updated records from journal file.
         /// </summary>

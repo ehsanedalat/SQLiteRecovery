@@ -775,4 +775,108 @@ namespace SQLiteParser
 
         }
     }
+    internal class WALFileParser
+    {
+        private string WalFilePath;
+        private string dbFilePath;
+        private string workSpacePath;
+        private string rollbackedFilePath;
+        private byte[] magicNumberBig = new byte[] {0x37, 0x7f, 0x06, 0x82 };
+        private byte[] magicNumberLittel = new byte[] { 0x37, 0x7f, 0x06, 0x83 };
+        private byte[] salt1=new byte[4];
+        private byte[] salt2 = new byte[4];
+        private byte[] checksum1 = new byte[4];
+        private byte[] checksum2 = new byte[4];
+        private int pageSize;
+        private const bool BIG_ENDIAN=true;
+        private const bool LITTEL_ENDIAN = false;
+        private bool byteType;
+        private long fileSize;
+        private const int FILE_HEADR_SIZE = 32;
+        private const int FRAME_HEADR_SIZE = 24;
+
+        internal WALFileParser(string WALfilePath, string dbFilePath, string workSpacePath)
+        {
+            this.WalFilePath = WALfilePath;
+            this.dbFilePath = dbFilePath;
+            this.workSpacePath = workSpacePath;
+            rollbackedFilePath = workSpacePath + @"\WAL-RollBackedFile";
+            if (!Directory.Exists(workSpacePath))
+            {
+                Directory.CreateDirectory(workSpacePath);
+            }
+
+            init();
+
+            fillPages();
+
+            getDeletedRecords();
+        }
+
+        private void getDeletedRecords()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void fillPages()
+        {
+            int offset = FILE_HEADR_SIZE;
+            while (fileSize - offset > pageSize + FRAME_HEADR_SIZE)
+            {
+                byte[] frameHeaders = Utils.ReadingFromFile(WalFilePath, offset, FRAME_HEADR_SIZE);
+                byte[] currentSalt1 = new byte[4];
+                byte[] currentSalt2 = new byte[4];
+                byte[] currentCheckSum1 = new byte[4];
+                byte[] currentCheckSum2 = new byte[4];
+                Array.Copy(frameHeaders,  8, currentSalt1, 0, 4);
+                Array.Copy(frameHeaders, 12, currentSalt2, 0, 4);
+                Array.Copy(frameHeaders, 16, currentCheckSum1, 0, 4);
+                Array.Copy(frameHeaders, 10, currentCheckSum2, 0, 4);
+                
+                int currentPageNum;
+                if (byteType = BIG_ENDIAN)
+                {
+                    currentPageNum = BitConverter.ToInt32(new byte[] {frameHeaders[3],frameHeaders[2],frameHeaders[1],frameHeaders[0] }, 0);
+                }
+                else
+                {
+                    currentPageNum = BitConverter.ToInt32(new byte[] { frameHeaders[0], frameHeaders[1], frameHeaders[2], frameHeaders[3] }, 0);
+                }
+                //check for activation pages
+
+                //make DS
+
+            }
+        }
+
+        private void init()
+        {
+            fileSize = Utils.fileSize(WalFilePath);
+            byte[] currentFileHeader = Utils.ReadingFromFile(WalFilePath, 0, FILE_HEADR_SIZE);
+            byte[] currentMagic = new byte[4];
+            Array.Copy(currentFileHeader, 0, currentMagic, 0, 4);
+
+            if (currentMagic.SequenceEqual(magicNumberBig) == BIG_ENDIAN)
+            {
+                byteType = BIG_ENDIAN;
+            }
+            else
+            {
+                byteType = LITTEL_ENDIAN;
+            }
+
+            if (byteType == BIG_ENDIAN)
+            {
+                pageSize = BitConverter.ToInt32(new byte[] { currentFileHeader[11], currentFileHeader[10], currentFileHeader[9], currentFileHeader[8] }, 0);
+            }
+            else
+            {
+                pageSize = BitConverter.ToInt32(new byte[] { currentFileHeader[8], currentFileHeader[9], currentFileHeader[10], currentFileHeader[11] }, 0);
+            }
+            Array.Copy(currentFileHeader, 16, salt1, 0, 4);
+            Array.Copy(currentFileHeader, 20, salt2, 0, 4);
+            Array.Copy(currentFileHeader, 24, checksum1, 0, 4);
+            Array.Copy(currentFileHeader, 28, checksum2, 0, 4);
+        }
+    }
 }
