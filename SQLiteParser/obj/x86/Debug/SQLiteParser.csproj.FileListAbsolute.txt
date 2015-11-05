@@ -5,3 +5,10 @@ F:\C# Projects\DevicePluginLibrary\SQLiteParser\bin\Debug\System.Data.SQLite.pdb
 F:\C# Projects\DevicePluginLibrary\SQLiteParser\obj\x86\Debug\SQLiteParser.exe
 F:\C# Projects\DevicePluginLibrary\SQLiteParser\obj\x86\Debug\SQLiteParser.pdb
 F:\C# Projects\DevicePluginLibrary\SQLiteParser\obj\x86\Debug\SQLiteParser.csprojResolveAssemblyReference.cache
+F:\C# Projects\SQLiteRecovery\SQLiteParser\bin\Debug\SQLiteParser.exe
+F:\C# Projects\SQLiteRecovery\SQLiteParser\bin\Debug\SQLiteParser.pdb
+F:\C# Projects\SQLiteRecovery\SQLiteParser\bin\Debug\System.Data.SQLite.dll
+F:\C# Projects\SQLiteRecovery\SQLiteParser\bin\Debug\System.Data.SQLite.pdb
+F:\C# Projects\SQLiteRecovery\SQLiteParser\obj\x86\Debug\SQLiteParser.csprojResolveAssemblyReference.cache
+F:\C# Projects\SQLiteRecovery\SQLiteParser\obj\x86\Debug\SQLiteParser.exe
+F:\C# Projects\SQLiteRecovery\SQLiteParser\obj\x86\Debug\SQLiteParser.pdb

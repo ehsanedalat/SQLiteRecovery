@@ -3,3 +3,7 @@ F:\C# Projects\DevicePluginLibrary\PluginLibrary\bin\Debug\PluginLibrary.pdb
 F:\C# Projects\DevicePluginLibrary\PluginLibrary\obj\Debug\PluginLibrary.dll
 F:\C# Projects\DevicePluginLibrary\PluginLibrary\obj\Debug\PluginLibrary.pdb
 F:\C# Projects\DevicePluginLibrary\PluginLibrary\obj\Debug\PluginLibrary.csprojResolveAssemblyReference.cache
+F:\C# Projects\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.dll
+F:\C# Projects\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.pdb
+F:\C# Projects\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.dll
+F:\C# Projects\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.pdb
