@@ -821,7 +821,7 @@ namespace SQLiteParser
         private void fillPages()
         {
             int offset = FILE_HEADR_SIZE;
-            while (fileSize - offset > pageSize + FRAME_HEADR_SIZE)
+            while (fileSize - offset >= pageSize + FRAME_HEADR_SIZE)
             {
                 byte[] frameHeaders = Utils.ReadingFromFile(WalFilePath, offset, FRAME_HEADR_SIZE);
                 byte[] currentSalt1 = new byte[4];
