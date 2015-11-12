@@ -88,6 +88,22 @@ namespace SQLiteParser
             }
         }
 
+        internal static bool WrittingToFile(string fileName, long offset, byte[] array)
+        {
+            if (File.Exists(fileName))
+            {
+                Stream outStream = File.Open(fileName, FileMode.Open);
+                //outStream.Seek(offset, SeekOrigin.Begin);
+                outStream.Write(array,(int)offset,(int)array.Length);
+                return true;
+            }
+            else
+            {
+                throw new FileNotFoundException("There is not such a file in defined path.", fileName);
+            }
+            
+        }
+
         internal static long fileSize(string fileName)
         {
             if (File.Exists(fileName))
@@ -223,15 +239,16 @@ namespace SQLiteParser
                 {
                     Dictionary<string, ArrayList> list = result[item[0]];
                     ArrayList newList = outputQueries(runCommand2cmd("--table " + item[0] + " \"" + rolledBackDB + "\" \"" + currentDB + "\"", process));
+                    ArrayList res = new ArrayList();
                     foreach(string key in list.Keys)
                         foreach (string query in newList)
                         {
-                            if (list[key].Contains(query))
-                                newList.Remove(query);
+                            if (!list[key].Contains(query))
+                                res.Add(query);
                         }
-                    if (newList.Count != 0)
+                    if (res.Count != 0)
                     {
-                        result[item[0]].Add(rolledBackDB,newList);
+                        result[item[0]].Add(rolledBackDB,res);
                     }
                 }
                 
@@ -345,6 +362,61 @@ namespace SQLiteParser
             System.Data.SQLite.SQLiteConnection.ClearAllPools();
             connection.Close();
             GC.Collect();
+        }
+        /// <summary>
+        /// retrieved records from old dbs with given queries.
+        /// </summary>
+        /// <param name="queries">contaion queries catagorized by table name at first and then by db path.</param>
+        /// <returns>records that classified by table names.</returns>
+        internal static Dictionary<string, ArrayList> getRecords(Dictionary<string, Dictionary<string, ArrayList>> queries)
+        {
+            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
+
+            foreach (string tableName in queries.Keys)
+            {
+                ArrayList records = new ArrayList();
+
+                string[] filePathes = queries[tableName].Keys.ToArray();
+                int index = 0;
+                SQLiteConnection connection = Utils.buildDBConnection(filePathes[index]);
+
+                var cmd = new SQLiteCommand("select * from " + tableName, connection);
+                var dr = cmd.ExecuteReader();
+                ArrayList colNames = new ArrayList();
+                for (var i = 0; i < dr.FieldCount; i++)
+                {
+                    colNames.Add(dr.GetName(i));
+                }
+                records.Add(colNames);
+
+
+                do
+                {
+                    ArrayList mQuery = queries[tableName][filePathes[index]];
+                    foreach (string query in mQuery)
+                    {
+                        SQLiteCommand com = new SQLiteCommand(query, connection);
+                        SQLiteDataReader reader = com.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            ArrayList item = new ArrayList();
+                            foreach (string col in colNames)
+                                item.Add(reader[col]);
+                            records.Add(item);
+                        }
+                    }
+                    Utils.closeSqlitConnection(connection);
+
+                    index++;
+                    if (index < filePathes.Length)
+                        connection = Utils.buildDBConnection(filePathes[index]);
+                } while (index < filePathes.Length);
+                if (records.Count > 1)
+                    result.Add(tableName, records);
+            }
+            return result;
+
         }
     }
 }

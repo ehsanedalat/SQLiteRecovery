@@ -36,7 +36,7 @@ namespace SQLiteParser
         /// </summary>
         /// <param name="walFilePath">file Address of WAL file.</param>
         /// <returns>Dictionary witch its key is table name and value is ArrayList of records. </returns>
-        /*public Dictionary<string, ArrayList> walRecovery(string walFilePath)
+        public Dictionary<string, ArrayList> walRecovery(string walFilePath)
         {
             if (File.Exists(walFilePath) && Utils.fileSize(walFilePath) > 0)
             {
@@ -47,7 +47,7 @@ namespace SQLiteParser
             {
                 return null;
             }
-        }*/
+        }
         /// <summary>
         /// recover deleted or updated records from journal file.
         /// </summary>

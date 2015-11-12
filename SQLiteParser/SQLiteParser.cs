@@ -660,64 +660,10 @@ namespace SQLiteParser
             for(int i=0;i<maxListLength;i++){
                 Utils.getDataBaseDifferences(rollbackedFile + "_" + i, dbFilePath,ref result);
             }
-            return getRecords(result);
+            return Utils.getRecords(result);
             
         }
-        /// <summary>
-        /// retrieved records from old dbs with given queries.
-        /// </summary>
-        /// <param name="queries">contaion queries catagorized by table name at first and then by db path.</param>
-        /// <returns>records that classified by table names.</returns>
-        private static Dictionary<string, ArrayList> getRecords(Dictionary<string, Dictionary<string, ArrayList>> queries)
-        {
-            Dictionary<string, ArrayList> result = new Dictionary<string, ArrayList>();
-
-            foreach (string tableName in queries.Keys)
-            {
-                ArrayList records = new ArrayList();
-
-                string[] filePathes = queries[tableName].Keys.ToArray();
-                int index = 0;
-                SQLiteConnection connection = Utils.buildDBConnection(filePathes[index]);
-
-                var cmd = new SQLiteCommand("select * from " + tableName, connection);
-                var dr = cmd.ExecuteReader();
-                ArrayList colNames = new ArrayList();
-                for (var i = 0; i < dr.FieldCount; i++)
-                {
-                    colNames.Add(dr.GetName(i));
-                }
-                records.Add(colNames);
-
-
-                do
-                {
-                    ArrayList mQuery = queries[tableName][filePathes[index]];
-                    foreach (string query in mQuery)
-                    {
-                        SQLiteCommand com = new SQLiteCommand(query, connection);
-                        SQLiteDataReader reader = com.ExecuteReader();
-
-                        while (reader.Read())
-                        {
-                            ArrayList item = new ArrayList();
-                            foreach (string col in colNames)
-                                item.Add(reader[col]);
-                            records.Add(item);
-                        }
-                    }
-                    Utils.closeSqlitConnection(connection);
-
-                    index++;
-                    if (index < filePathes.Length)
-                        connection = Utils.buildDBConnection(filePathes[index]);
-                } while (index < filePathes.Length);
-                if (records.Count > 1)
-                    result.Add(tableName, records);
-            }
-            return result;
-
-        }
+        
 
         /// <summary>
         /// find offset of leaf pages in journal file.
@@ -794,13 +740,19 @@ namespace SQLiteParser
         private long fileSize;
         private const int FILE_HEADR_SIZE = 32;
         private const int FRAME_HEADR_SIZE = 24;
+        private Dictionary<long, ArrayList> retrievedPages = new Dictionary<long, ArrayList>();
+        private string walFileCopyPath;
+        private int maxListLength;
+        private Dictionary<string, ArrayList> records;
 
         internal WALFileParser(string WALfilePath, string dbFilePath, string workSpacePath)
         {
             this.WalFilePath = WALfilePath;
             this.dbFilePath = dbFilePath;
             this.workSpacePath = workSpacePath;
-            rollbackedFilePath = workSpacePath + @"\WAL-RollBackedFile";
+            rollbackedFilePath = workSpacePath + @"WAL-RollBackedFile";
+            walFileCopyPath = WalFilePath + "_c";
+
             if (!Directory.Exists(workSpacePath))
             {
                 Directory.CreateDirectory(workSpacePath);
@@ -810,12 +762,51 @@ namespace SQLiteParser
 
             fillPages();
 
-            getDeletedRecords();
+            records = findDeletedRecords();
+
         }
 
-        private void getDeletedRecords()
+        internal Dictionary<string, ArrayList> getDeletedRecords()
         {
-            throw new NotImplementedException();
+            return records;
+        }
+
+        /// <summary>
+        /// Build old db from WAL pages and then find the differences of old db with current one.
+        /// </summary>
+        /// <returns>records whitch is omited or updated from old db classified by table name.</returns>
+        private Dictionary<string, ArrayList> findDeletedRecords()
+        {
+            List<long> keys = retrievedPages.Keys.ToList<long>();
+            for (int i = 0; i < maxListLength; i++)
+            {
+                System.IO.File.Copy(dbFilePath, rollbackedFilePath + "_" + i, true);
+                Stream outStream = File.Open(rollbackedFilePath + "_" + i, FileMode.Open);
+                for (int j = 0; j < keys.Count; j++)
+                {
+                    long pageNum = keys[j];
+                    ArrayList list = retrievedPages[pageNum];
+                    if (list.Count != 0)
+                    {
+                        byte[] currentPage = new byte[pageSize];
+                        currentPage = Utils.ReadingFromFile(walFileCopyPath, (long)list[0], (int)pageSize);
+                        outStream.Seek((pageNum - 1) * pageSize, SeekOrigin.Begin);
+                        outStream.Write(currentPage, 0, currentPage.Length);
+                        list.RemoveAt(0);
+                        retrievedPages[pageNum] = list;
+                    }
+                }
+                outStream.Flush();
+                outStream.Close();
+            }
+
+            Dictionary<string, Dictionary<string, ArrayList>> result = new Dictionary<string, Dictionary<string, ArrayList>>();
+            for (int i = 0; i < maxListLength; i++)
+            {
+                Utils.getDataBaseDifferences(rollbackedFilePath + "_" + i, dbFilePath, ref result);
+            }
+            return Utils.getRecords(result);
+
         }
 
         private void fillPages()
@@ -833,19 +824,34 @@ namespace SQLiteParser
                 Array.Copy(frameHeaders, 16, currentCheckSum1, 0, 4);
                 Array.Copy(frameHeaders, 10, currentCheckSum2, 0, 4);
                 
-                int currentPageNum;
-                if (byteType = BIG_ENDIAN)
-                {
-                    currentPageNum = BitConverter.ToInt32(new byte[] {frameHeaders[3],frameHeaders[2],frameHeaders[1],frameHeaders[0] }, 0);
-                }
-                else
-                {
-                    currentPageNum = BitConverter.ToInt32(new byte[] { frameHeaders[0], frameHeaders[1], frameHeaders[2], frameHeaders[3] }, 0);
-                }
-                //check for activation pages
+                int currentPageNum = BitConverter.ToInt32(new byte[] {frameHeaders[3],frameHeaders[2],frameHeaders[1],frameHeaders[0] }, 0);
+                byte pageType = Utils.ReadingFromFile(WalFilePath, offset+FRAME_HEADR_SIZE, 1)[0];
 
-                //make DS
+                if (pageType == 13)
+                {
+                    //check for activation pages
+                    if (currentSalt1.SequenceEqual(salt1) && currentSalt2.SequenceEqual(salt2) 
+                        && currentCheckSum1.SequenceEqual(checksum1) && currentCheckSum2.SequenceEqual(checksum2))
+                    {//frame is active
+                        byte[] page = Utils.ReadingFromFile(dbFilePath, pageSize * (currentPageNum - 1), pageSize);
+                        Utils.WrittingToFile(walFileCopyPath, offset, page);
 
+                    }
+                    if (!retrievedPages.ContainsKey(currentPageNum))
+                    {
+                        retrievedPages.Add(currentPageNum, new ArrayList() { (long)(FRAME_HEADR_SIZE + offset) });
+                        if (maxListLength == 0)
+                            maxListLength = 1;
+                    }
+                    else
+                    {
+                        retrievedPages[currentPageNum].Add((long)(FRAME_HEADR_SIZE + offset));
+                        if (retrievedPages[currentPageNum].Count > maxListLength)
+                            maxListLength = retrievedPages[currentPageNum].Count;
+                    }
+
+                }
+                offset=offset+pageSize+FRAME_HEADR_SIZE;
             }
         }
 
@@ -855,6 +861,7 @@ namespace SQLiteParser
             byte[] currentFileHeader = Utils.ReadingFromFile(WalFilePath, 0, FILE_HEADR_SIZE);
             byte[] currentMagic = new byte[4];
             Array.Copy(currentFileHeader, 0, currentMagic, 0, 4);
+            System.IO.File.Copy(WalFilePath, walFileCopyPath,true);
 
             if (currentMagic.SequenceEqual(magicNumberBig) == BIG_ENDIAN)
             {
@@ -865,14 +872,7 @@ namespace SQLiteParser
                 byteType = LITTEL_ENDIAN;
             }
 
-            if (byteType == BIG_ENDIAN)
-            {
-                pageSize = BitConverter.ToInt32(new byte[] { currentFileHeader[11], currentFileHeader[10], currentFileHeader[9], currentFileHeader[8] }, 0);
-            }
-            else
-            {
-                pageSize = BitConverter.ToInt32(new byte[] { currentFileHeader[8], currentFileHeader[9], currentFileHeader[10], currentFileHeader[11] }, 0);
-            }
+            pageSize = BitConverter.ToInt32(new byte[] { currentFileHeader[11], currentFileHeader[10], currentFileHeader[9], currentFileHeader[8] }, 0);
             Array.Copy(currentFileHeader, 16, salt1, 0, 4);
             Array.Copy(currentFileHeader, 20, salt2, 0, 4);
             Array.Copy(currentFileHeader, 24, checksum1, 0, 4);

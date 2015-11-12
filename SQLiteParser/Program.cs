@@ -19,8 +19,9 @@ namespace SQLiteParser
             //sqlite.unAllocatedSpases();
             //sqlite.journalRecovery(@"F:\SQLite DBs\MMSSMS\Seyed\mmssms.db-journal");
             //sqlite.getAllTableRecords("sms", "9125169683");
-            WALFileParser wal = new WALFileParser(@"F:\SQLite DBs\Browser\Android Browser\browser2.db-wal", @"F:\SQLite DBs\Browser\Android Browser\browser2.db",
+            WALFileParser wal = new WALFileParser(@"F:\SQLite DBs\Media\external-e15a07e6.db-wal", @"F:\SQLite DBs\Media\external-e15a07e6.db",
                 @"F:\workspace\");
+            wal.getDeletedRecords();
             Console.ReadLine();
         }
     }
