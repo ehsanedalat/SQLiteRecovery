@@ -48,11 +48,13 @@ namespace iOSBackupUtil
       string dbgFile = @"C:\Users\Ehsan\AppData\Roaming\Apple Computer\MobileSync\Backup\42b248ee727bb973106eeeaae9fae5785b25c184\Manifest.mbdb";
       MbdbFile mbdbFile = new MbdbFile(dirs[selection] + @"\Manifest.mbdb");
 			mbdbFile.ReadFile();
-            StreamWriter file = new StreamWriter(@"C:\Users\Ehsan\Desktop\Records.txt");
+            /*StreamWriter file = new StreamWriter(@"C:\Users\Ehsan\Desktop\Records.txt");
 
             foreach (var Record in mbdbFile.MbdbRecords)
                 if (Record.FilenameAsHashExistsInBackupDirectory(dirs[selection]))
                     Record.writeInFile(dirs[selection], file);
+            file.Flush();
+            file.Close();*/
             foreach (var Record in mbdbFile.MbdbRecords)
                 Record.copyFile(dirs[selection], @"C:\Users\Ehsan\Desktop\");
 

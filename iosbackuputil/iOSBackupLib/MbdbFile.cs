@@ -72,7 +72,7 @@ namespace iOSBackupLib
 			{
 				MbdbRecord mbdbRec = new MbdbRecord();
 				mbdbRec.Domain = InternalUtilities.ReadStringValue(_fsMbdb);
-				mbdbRec.Path = InternalUtilities.ReadStringValue(_fsMbdb);
+				mbdbRec.path = InternalUtilities.ReadStringValue(_fsMbdb);
 				mbdbRec.LinkTarget = InternalUtilities.ReadStringValue(_fsMbdb);
 				mbdbRec.DataHash = InternalUtilities.ReadStringValue(_fsMbdb);
 				mbdbRec.Unknown_I = InternalUtilities.ReadStringValue(_fsMbdb);
