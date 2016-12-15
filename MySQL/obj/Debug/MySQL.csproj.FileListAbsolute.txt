@@ -9,3 +9,8 @@ F:\C# Projects\DevicePluginLibrary\MySQL\bin\Debug\MySql.Data.dll
 F:\C# Projects\DevicePluginLibrary\MySQL\obj\Debug\MySQL.dll
 F:\C# Projects\DevicePluginLibrary\MySQL\obj\Debug\MySQL.pdb
 F:\C# Projects\SQLiteRecovery\MySQL\obj\Debug\MySQL.csprojResolveAssemblyReference.cache
+F:\C# Projects\Git\SQLiteRecovery\MySQL\bin\Debug\MySQL.dll
+F:\C# Projects\Git\SQLiteRecovery\MySQL\bin\Debug\MySQL.pdb
+F:\C# Projects\Git\SQLiteRecovery\MySQL\obj\Debug\MySQL.csprojResolveAssemblyReference.cache
+F:\C# Projects\Git\SQLiteRecovery\MySQL\obj\Debug\MySQL.dll
+F:\C# Projects\Git\SQLiteRecovery\MySQL\obj\Debug\MySQL.pdb

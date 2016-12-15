@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSBackupUtil", "iOSBackupUtil\iOSBackupUtil.csproj", "{583865C6-323D-4CE5-A168-4E28402AAB93}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSBackupLib", "iOSBackupLib\iOSBackupLib.csproj", "{0D90E168-2428-4268-B6E1-D8E46EA10C6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Debug|x86.ActiveCfg = Debug|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Debug|x86.Build.0 = Debug|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Release|Any CPU.ActiveCfg = Release|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Release|Mixed Platforms.Build.0 = Release|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Release|x86.ActiveCfg = Release|x86
+		{583865C6-323D-4CE5-A168-4E28402AAB93}.Release|x86.Build.0 = Release|x86
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0D90E168-2428-4268-B6E1-D8E46EA10C6C}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

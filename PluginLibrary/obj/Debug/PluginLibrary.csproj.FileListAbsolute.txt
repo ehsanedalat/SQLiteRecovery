@@ -7,3 +7,8 @@ F:\C# Projects\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.dll
 F:\C# Projects\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.pdb
 F:\C# Projects\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.dll
 F:\C# Projects\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.pdb
+F:\C# Projects\Git\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.dll
+F:\C# Projects\Git\SQLiteRecovery\PluginLibrary\bin\Debug\PluginLibrary.pdb
+F:\C# Projects\Git\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.csprojResolveAssemblyReference.cache
+F:\C# Projects\Git\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.dll
+F:\C# Projects\Git\SQLiteRecovery\PluginLibrary\obj\Debug\PluginLibrary.pdb

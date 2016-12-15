@@ -15,7 +15,9 @@ namespace SQLiteParser
         private const int internalNodeTypeValue = 5;
         private const int leafNodeTypeValue = 13;
         private int pageSize;
+#pragma warning disable CS0169 // The field 'SQLiteParser.rootPageNum' is never used
         private int rootPageNum;
+#pragma warning restore CS0169 // The field 'SQLiteParser.rootPageNum' is never used
         private const int leafPageHeaderLength = 8;
         private const int internalPageHeaderLength = 12;
         private const int pageSizeOffsetValue = 16;
@@ -310,7 +312,9 @@ namespace SQLiteParser
             {
                 Array.Copy(currentPage, ptr, buffer, 0, 9);
             }
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
             catch (ArgumentException ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length - ptr);
             }
@@ -321,7 +325,9 @@ namespace SQLiteParser
             {
                 Array.Copy(currentPage, ptr, buffer, 0, 9);
             }
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
             catch (ArgumentException ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length-ptr);
             }
@@ -347,7 +353,9 @@ namespace SQLiteParser
                 {
                     Array.Copy(currentPage, ptr, buffer, 0, 9);
                 }
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
                 catch (ArgumentException ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
                 {
                     Array.Copy(currentPage, ptr, buffer, 0, currentPage.Length - ptr);
                 }
@@ -572,7 +580,9 @@ namespace SQLiteParser
                 {
                     item = sqliteTypes[Convert.ToInt16(typeNValue)];
                 }
+#pragma warning disable CS0168 // The variable 'ex' is declared but never used
                 catch (OverflowException ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
                 {
                     Debug.WriteLine("");
                 }
@@ -596,7 +606,9 @@ namespace SQLiteParser
         private const int checksumLength = 4;
         private Dictionary<long, ArrayList> backupPages = new Dictionary<long, ArrayList>();
         private string dbFilePath;
+#pragma warning disable CS0169 // The field 'JournalFileParser.recordsCount' is never used
         private long recordsCount;
+#pragma warning restore CS0169 // The field 'JournalFileParser.recordsCount' is never used
         private long fileSize;
         private int maxListLength = 0;
         private string path;

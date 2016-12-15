@@ -6,3 +6,8 @@ F:\C# Projects\DevicePluginLibrary\DevicePluginLibrary\obj\Debug\DevicePluginLib
 =======
 F:\C# Projects\DevicePluginLibrary\DevicePluginLibrary\obj\Debug\DevicePluginLibrary.csprojResolveAssemblyReference.cache
 >>>>>>> pluginInterfaceLibrary
+F:\C# Projects\Git\SQLiteRecovery\DevicePluginLibrary\bin\Debug\DevicePluginLibrary.dll
+F:\C# Projects\Git\SQLiteRecovery\DevicePluginLibrary\bin\Debug\DevicePluginLibrary.pdb
+F:\C# Projects\Git\SQLiteRecovery\DevicePluginLibrary\obj\Debug\DevicePluginLibrary.csprojResolveAssemblyReference.cache
+F:\C# Projects\Git\SQLiteRecovery\DevicePluginLibrary\obj\Debug\DevicePluginLibrary.dll
+F:\C# Projects\Git\SQLiteRecovery\DevicePluginLibrary\obj\Debug\DevicePluginLibrary.pdb
