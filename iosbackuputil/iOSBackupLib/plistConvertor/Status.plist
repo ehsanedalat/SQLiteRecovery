@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BackupState</key>
+	<string>new</string>
+	<key>Date</key>
+	<date>2016-11-30T18:59:03Z</date>
+	<key>IsFullBackup</key>
+	<false/>
+	<key>SnapshotState</key>
+	<string>finished</string>
+	<key>UUID</key>
+	<string>B5CD8D40-E52A-4620-A87F-1F72EA47D4C6</string>
+	<key>Version</key>
+	<string>2.4</string>
+</dict>
+</plist>

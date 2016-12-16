@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InfoReader.cs" />
     <Compile Include="InternalUtilities.cs" />
+    <Compile Include="iOSBackupUtil.cs" />
     <Compile Include="MbdbFile.cs" />
     <Compile Include="MbdbRecord.cs" />
     <Compile Include="MbdbRecordFileMode.cs" />

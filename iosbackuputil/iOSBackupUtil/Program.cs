@@ -5,7 +5,7 @@ using System.Text;
 using iOSBackupLib;
 using System.IO;
 
-namespace iOSBackupUtil
+namespace iOSBackupUtilTest
 {
 	class Program
 	{
@@ -13,12 +13,10 @@ namespace iOSBackupUtil
 
 		static void Main(string[] args)
 		{
-			// A test "Manifest.mbdb" file is currently copied
-			// into the working-directory prior to build.
 			bool go = false;
 			string[] dirs = null;
 			int selection = -1;
-
+            iOSBackupUtil util = new iOSBackupUtil();
 			do
 			{
 				Console.WriteLine("******************************");
@@ -26,13 +24,14 @@ namespace iOSBackupUtil
 				Console.WriteLine("******************************");
 				Console.WriteLine("Please select a backup to analyze:");
 
-				dirs = System.IO.Directory.GetDirectories(@"C:\Users\Ehsan\AppData\Roaming\Apple Computer\MobileSync\Backup");
+                dirs = util.getBackupDirectories();
 				for (int i = 0; i < dirs.Length; i++)
 				{
 					Console.Write(i.ToString(new string('0', dirs.Length.ToString().Length)));
 					Console.Write(") ");
-					Console.Write(new DirectoryInfo(dirs[i]).LastWriteTime.ToString("yyyy-MM-dd"));
-					Console.WriteLine(dirs[i].Substring(dirs[i].LastIndexOf(Path.DirectorySeparatorChar)));
+                    Console.WriteLine(dirs[i]);
+                    Console.Write(util.getBackupInfoInText(dirs[i]));
+					
 				}
 
 				Console.Write("Backup to analyze: ");
@@ -45,27 +44,12 @@ namespace iOSBackupUtil
 				go = (int.TryParse(readVal, out selection) && selection >= 0 && selection < dirs.Length);
 			} while (go == false);
 
-      string dbgFile = @"C:\Users\Ehsan\AppData\Roaming\Apple Computer\MobileSync\Backup\42b248ee727bb973106eeeaae9fae5785b25c184\Manifest.mbdb";
-      MbdbFile mbdbFile = new MbdbFile(dirs[selection] + @"\Manifest.mbdb");
-			mbdbFile.ReadFile();
-            /*StreamWriter file = new StreamWriter(@"C:\Users\Ehsan\Desktop\Records.txt");
-
-            foreach (var Record in mbdbFile.MbdbRecords)
-                if (Record.FilenameAsHashExistsInBackupDirectory(dirs[selection]))
-                    Record.writeInFile(dirs[selection], file);
-            file.Flush();
-            file.Close();*/
-            foreach (var Record in mbdbFile.MbdbRecords)
-                Record.copyFile(dirs[selection], @"C:\Users\Ehsan\Desktop\");
-
-                Console.WriteLine();
+            util.extractDataFromBackup(@"C:\Users\Ehsan\Desktop", dirs[selection]);
+      
+		
+            Console.WriteLine();
 			Console.Write("Done, press ENTER to quit...");
 			Console.ReadLine();
-		}
-
-		internal static string ByteArrayAsStringOfHexDigits(byte[] bytes)
-		{
-			return BitConverter.ToString(bytes);
 		}
 	}
 }

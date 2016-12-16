@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSBackupUtil", "iOSBackupUtil\iOSBackupUtil.csproj", "{583865C6-323D-4CE5-A168-4E28402AAB93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSBackupUtilTest", "iOSBackupUtil\iOSBackupUtilTest.csproj", "{583865C6-323D-4CE5-A168-4E28402AAB93}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iOSBackupLib", "iOSBackupLib\iOSBackupLib.csproj", "{0D90E168-2428-4268-B6E1-D8E46EA10C6C}"
 EndProject

@@ -8,21 +8,21 @@ namespace iOSBackupLib
 	/// <summary>
 	/// 
 	/// </summary>
-	public class MbdbFile 
+	internal class MbdbFile 
 	{
 		private FileStream _fsMbdb = null;
 		private bool? _validHeader = null;
 
-		public byte[] HeaderId;
-		public uint RecordCount;
-		public List<MbdbRecord> MbdbRecords = new List<MbdbRecord>();
+        internal byte[] HeaderId;
+        internal uint RecordCount;
+        internal List<MbdbRecord> MbdbRecords = new List<MbdbRecord>();
 
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MbdbFile"/> class.
-		/// </summary>
-		/// <param name="fileName">Name of the file.</param>
-		public MbdbFile(string fileName)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MbdbFile"/> class.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        internal MbdbFile(string fileName)
 		{
 			_fsMbdb = File.OpenRead(fileName);
 
@@ -63,10 +63,10 @@ namespace iOSBackupLib
 			}
 		}
 
-		/// <summary>
-		/// Reads the file, and closes the stream related to it.
-		/// </summary>
-		public void ReadFile()
+        /// <summary>
+        /// Reads the file, and closes the stream related to it.
+        /// </summary>
+        internal void ReadFile()
 		{
 			while (_fsMbdb.Position < _fsMbdb.Length)
 			{
@@ -102,11 +102,11 @@ namespace iOSBackupLib
 			_fsMbdb.Close();
 		}
 
-		/// <summary>
-		/// Gets the unique domains.
-		/// </summary>
-		/// <value>The unique domains.</value>
-		public List<string> UniqueDomains
+        /// <summary>
+        /// Gets the unique domains.
+        /// </summary>
+        /// <value>The unique domains.</value>
+        internal List<string> UniqueDomains
 		{
 			get
 			{

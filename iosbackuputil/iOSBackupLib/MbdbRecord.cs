@@ -9,37 +9,37 @@ namespace iOSBackupLib
 	/// <summary>
 	/// 
 	/// </summary>
-	public class MbdbRecord
+	internal class MbdbRecord
 	{
 		private string _filenameAsHash = null;
 
-		public string Domain = null;
-		public string path = null;
-		public string LinkTarget = null;
-		public string DataHash = null;
-		public string Unknown_I = null; // EncryptionKey
-		public ushort Mode = 0; 
-		public ulong iNodeLookup = 0; // iNode Lookup Number
-		public uint UserId = 0;
-		public uint GroupId = 0;
-		public uint LastModifiedTime = 0;
-		public uint LastAccessTime = 0;
-		public uint CreationTime = 0;
-		public ulong FileLength = 0;
-		public byte ProtectionClass = 0;
-		public byte PropertyCount = 0;
-		public Dictionary<string, string> Properties = new Dictionary<string, string>();
+		internal string Domain = null;
+        internal string path = null;
+        internal string LinkTarget = null;
+        internal string DataHash = null;
+        internal string Unknown_I = null; // EncryptionKey
+        internal ushort Mode = 0;
+        internal ulong iNodeLookup = 0; // iNode Lookup Number
+        internal uint UserId = 0;
+        internal uint GroupId = 0;
+        internal uint LastModifiedTime = 0;
+        internal uint LastAccessTime = 0;
+        internal uint CreationTime = 0;
+        internal ulong FileLength = 0;
+        internal byte ProtectionClass = 0;
+        internal byte PropertyCount = 0;
+        internal Dictionary<string, string> Properties = new Dictionary<string, string>();
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MbdbRecord"/> class.
-		/// </summary>
-		public MbdbRecord() { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MbdbRecord"/> class.
+        /// </summary>
+        internal MbdbRecord() { }
 
-		/// <summary>
-		/// Gets the filename as hash.
-		/// </summary>
-		/// <value>The filename as hash.</value>
-		public string FilenameAsHash
+        /// <summary>
+        /// Gets the filename as hash.
+        /// </summary>
+        /// <value>The filename as hash.</value>
+        internal string FilenameAsHash
 		{
 			get
 			{
@@ -58,11 +58,11 @@ namespace iOSBackupLib
 			}
 		}
 
-		/// <summary>
-		/// Gets the record mode.
-		/// </summary>
-		/// <value>The record mode.</value>
-		public MbdbRecordFileMode RecordMode
+        /// <summary>
+        /// Gets the record mode.
+        /// </summary>
+        /// <value>The record mode.</value>
+        internal MbdbRecordFileMode RecordMode
 		{
 			get
 			{
@@ -80,11 +80,11 @@ namespace iOSBackupLib
 			}
 		}
 
-		/// <summary>
-		/// Filenames as hash exists.
-		/// </summary>
-		/// <returns></returns>
-		public bool FilenameAsHashExistsInBackupDirectory(string selectedBackupPath)
+        /// <summary>
+        /// Filenames as hash exists.
+        /// </summary>
+        /// <returns></returns>
+        internal bool FilenameAsHashExistsInBackupDirectory(string selectedBackupPath)
 		{
 			if (this.RecordMode != MbdbRecordFileMode.FILE)
 				return false;
@@ -96,10 +96,10 @@ namespace iOSBackupLib
             return false;
 		}
 
-		/// <summary>
-		/// Prints this instance.
-		/// </summary>
-		public void PrintInConsole(String selectedBackupPath)
+        /// <summary>
+        /// Prints this instance.
+        /// </summary>
+        private void PrintInConsole(String selectedBackupPath)
 		{
 			Console.WriteLine();
 			Console.WriteLine("MBDB");
@@ -125,7 +125,7 @@ namespace iOSBackupLib
 
 			Console.WriteLine();
 		}
-        public void writeInFile(String selectedBackupPath, StreamWriter file)
+        private void writeInFile(String selectedBackupPath, StreamWriter file)
         {
             file.WriteLine();
             file.WriteLine("MBDB");
@@ -151,7 +151,7 @@ namespace iOSBackupLib
 
             file.WriteLine("*********END of THIS RECORD*******************");
         }
-        public bool copyFile(string selectedBackupPath, string targetPathDirectory)
+        internal bool copyFile(string selectedBackupPath, string targetPathDirectory)
         {
             if (this.FilenameAsHashExistsInBackupDirectory(selectedBackupPath))
             {
@@ -197,40 +197,7 @@ namespace iOSBackupLib
                         File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".sqlite"));
                         return true;
                     }
-                    var proc = new Process
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = @"PlistConvertor\plutil.exe",
-                            Arguments = "-lint " + destinationFile,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            CreateNoWindow = true
-                        }
-                    };
-                    proc.Start();
-                    string result = "";
-                    while (!proc.StandardOutput.EndOfStream)
-                    {
-                        result += proc.StandardOutput.ReadLine();
-                    }
-                    if (result.ToLower().Contains("ok"))
-                    {
-                        proc = new Process
-                        {
-                            StartInfo = new ProcessStartInfo
-                            {
-                                FileName = @"PlistConvertor\plutil.exe",
-                                Arguments = "-convert xml1 " + destinationFile,
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = true
-                            }
-                        };
-                        proc.Start();
-                        File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".plist"));
-                        return true;
-                    }
+                    humanReadablePlist(destinationFile);
                 }
                 catch (FileNotFoundException)
                 {
@@ -238,6 +205,44 @@ namespace iOSBackupLib
                 }
             }
             return false;
+        }
+
+        internal static void humanReadablePlist(string destinationFile)
+        {
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = @"PlistConvertor\plutil.exe",
+                    Arguments = "-lint " + destinationFile,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            string result = "";
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                result += proc.StandardOutput.ReadLine();
+            }
+            if (result.ToLower().Contains("ok"))
+            {
+                proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = @"PlistConvertor\plutil.exe",
+                        Arguments = "-convert xml1 " + destinationFile,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                proc.Start();
+                if(Path.GetExtension(destinationFile) !=".plist")
+                    File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".plist"));
+            }
         }
     }
 }
