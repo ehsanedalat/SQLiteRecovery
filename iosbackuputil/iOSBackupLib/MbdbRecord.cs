@@ -153,24 +153,56 @@ namespace iOSBackupLib
         }
         public bool copyFile(string selectedBackupPath, string targetPathDirectory)
         {
-            targetPathDirectory = targetPathDirectory + @"ExtractedFiles\";
-            if (!System.IO.Directory.Exists(targetPathDirectory))
-            {
-                System.IO.Directory.CreateDirectory(targetPathDirectory);
-            }
-          
             if (this.FilenameAsHashExistsInBackupDirectory(selectedBackupPath))
             {
+                //Build Directories
+                string[] directories = (@"ExtractedFiles/" + this.Domain.Replace("-", "/") + "/" + this.path).Split(new char[] { '/' });
+                for (int i = 0; i < directories.Length - 1; i++)
+                {
+                    if (!System.IO.Directory.Exists(targetPathDirectory + directories[i] + @"\"))
+                    {
+                        System.IO.Directory.CreateDirectory(targetPathDirectory + directories[i] + @"\");
+                    }
+                    targetPathDirectory = targetPathDirectory + directories[i] + @"\";
+                }
                 try
                 {
-                    string destinationFile = targetPathDirectory + this.path.Replace("/","");
-                    System.IO.File.Copy(selectedBackupPath+ "\\" + this._filenameAsHash, destinationFile, true);
+                    string destinationFile = targetPathDirectory + directories[directories.Length - 1];
+                    System.IO.File.Copy(selectedBackupPath + "\\" + this._filenameAsHash, destinationFile, true);
+
+                    char[] sqlite = new char[] { 'S', 'Q', 'L', 'i', 't', 'e', ' ', 'f', 'o', 'r', 'm', 'a', 't', ' ', '3', '\0' };
+                    byte[] buffer = new byte[16];
+                    try
+                    {
+                        using (FileStream fs = new FileStream(destinationFile, FileMode.Open, FileAccess.Read))
+                        {
+                            fs.Read(buffer, 0, buffer.Length);
+                            fs.Close();
+                        }
+                    }
+                    catch (System.UnauthorizedAccessException ex)
+                    {
+                        Debug.Print(ex.Message);
+                    }
+                    bool isSqlite = true;
+                    for (int i = 0; i < sqlite.Length; i++)
+                    {
+                        if (sqlite[i] != buffer[i])
+                        {
+                            isSqlite = false;
+                        }
+                    }
+                    if (isSqlite)
+                    {
+                        File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".sqlite"));
+                        return true;
+                    }
                     var proc = new Process
                     {
                         StartInfo = new ProcessStartInfo
                         {
                             FileName = @"PlistConvertor\plutil.exe",
-                            Arguments = "-lint "+destinationFile,
+                            Arguments = "-lint " + destinationFile,
                             UseShellExecute = false,
                             RedirectStandardOutput = true,
                             CreateNoWindow = true
@@ -189,30 +221,16 @@ namespace iOSBackupLib
                             StartInfo = new ProcessStartInfo
                             {
                                 FileName = @"PlistConvertor\plutil.exe",
-                                Arguments = "-convert xml1 " +destinationFile,
+                                Arguments = "-convert xml1 " + destinationFile,
                                 UseShellExecute = false,
                                 RedirectStandardOutput = true,
                                 CreateNoWindow = true
                             }
                         };
                         proc.Start();
-                        try
-                        {
-                            File.Move(destinationFile, Path.ChangeExtension(destinationFile,".plist"));
-                        }
-                        catch (IOException)
-                        {
-                            try
-                            {
-                                Random rnd = new Random();
-                                File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".plist")+rnd.Next(Int32.MaxValue));
-                                Debug.WriteLine(destinationFile);
-                            }
-                            catch (IOException) { }
-                        }
+                        File.Move(destinationFile, Path.ChangeExtension(destinationFile, ".plist"));
+                        return true;
                     }
-                    //sqlite file extention
-                    return true;
                 }
                 catch (FileNotFoundException)
                 {
